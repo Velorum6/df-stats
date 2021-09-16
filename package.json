@@ -1,0 +1,25 @@
+{
+  "name": "df-stats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "build:watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bulmenisaurus/df-stats.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bulmenisaurus/df-stats/issues"
+  },
+  "homepage": "https://github.com/Bulmenisaurus/df-stats#readme",
+  "dependencies": {
+    "typescript": "^4.4.3"
+  }
+}
