@@ -4,10 +4,43 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Df Stats</title>
 
-    <script src="./dist/script.js"></script>
+    <!-- reset.css -->
+    <link rel="stylesheet" href="./dist/reset.css" />
+
+    <!-- minified sass -->
     <link rel="stylesheet" href="./dist/style.min.css" />
+
+    <!-- Monospace font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- bundled js -->
+    <script src="./dist/bundle.js" defer></script>
   </head>
-  <body></body>
+  <body>
+    <input type="text" id="player-input" />
+    <div id="player-info">
+      <section class="grid">
+        <div id="total-energy-cap"></div>
+      </section>
+      <section id="planets-by-level">
+        <h2>Celestial Bodies by Level</h2>
+        <div class="canvas-container">
+          <canvas></canvas>
+        </div>
+      </section>
+      <!-- <section id="planet-types">
+        <h3>Planet Types</h3>
+        <div class="canvas-container">
+          <canvas></canvas>
+        </div>
+      </section> -->
+    </div>
+  </body>
 </html>

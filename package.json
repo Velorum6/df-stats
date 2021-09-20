@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "build:watch": "tsc -w"
+    "build": "browserify --debug  ./src/script.ts -p tsify > ./dist/bundle.js",
+    "build:watch": "watchify --debug ./src/script.ts -p tsify -o ./dist/bundle.js -v",
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,18 @@
   },
   "homepage": "https://github.com/Bulmenisaurus/df-stats#readme",
   "dependencies": {
-    "typescript": "^4.4.3"
+    "@types/chart.js": "^2.9.34",
+    "@types/lodash": "^4.14.173",
+    "@types/offscreencanvas": "^2019.6.3",
+    "browserify": "^17.0.0",
+    "chart.js": "^3.5.1",
+    "lodash": "^4.17.21",
+    "prettier": "^2.4.1",
+    "tsify": "^5.0.4",
+    "typescript": "^4.4.3",
+    "watchify": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.9.2"
   }
 }

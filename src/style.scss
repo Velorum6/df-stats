@@ -1,0 +1,30 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 0px 20px;
+  min-height: 100vh;
+}
+
+#player-info {
+  margin: 40px;
+}
+
+section {
+  margin: 20px 0;
+  position: relative;
+
+  h2 {
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+}
+
+#planet-types .canvas-container {
+  width: 200px;
+  height: 200px;
+}

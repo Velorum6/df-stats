@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2016",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
     "noImplicitAny": true,
     "alwaysStrict": true,
     "strict": true,
-    "outDir": "dist",
-    "sourceMap": true
+    "module": "CommonJS"
   }
 }
