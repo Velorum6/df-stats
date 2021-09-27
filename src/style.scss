@@ -6,12 +6,8 @@
 
 body {
   font-family: 'IBM Plex Mono', monospace;
-  padding: 0px 20px;
+  padding: 40px 60px;
   min-height: 100vh;
-}
-
-#player-info {
-  margin: 40px;
 }
 
 section {
@@ -24,7 +20,14 @@ section {
   }
 }
 
-#planet-types .canvas-container {
-  width: 200px;
-  height: 200px;
+#input-container {
+  text-align: center;
+  position: relative;
+
+  input {
+    font-size: 2em;
+    width: calc(max(50vw, 200px));
+    padding: 2px 5px;
+    font-family: inherit;
+  }
 }
