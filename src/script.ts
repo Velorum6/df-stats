@@ -1,7 +1,6 @@
 // The amount of things I had to do to get this npm module working is **too damn high**!
 
 import Chart = require('chart.js');
-import _ = require('lodash');
 
 // GraphQL utils
 
@@ -106,7 +105,7 @@ const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
   return new Chart.Chart(ctx, {
     type: 'bar',
     data: {
-      labels: _.range(10).map((i) => `Level ${i}`),
+      labels: [...Array(10).keys()].map((i) => `Level ${i}`),
       datasets: Object.values(planetTypesByLevel).map((planets, i) => ({
         data: planets,
         backgroundColor: [
