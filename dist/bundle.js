@@ -13409,6 +13409,12 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
 const urlParams = new URLSearchParams(window.location.search);
 const player = urlParams.get('player') || '0xe8d3dd97cd3a33b7b8f94e3195e98d3912ac50e9';
 const mainInput = document.getElementById('player-input');
+mainInput.addEventListener('input', () => {
+    const { customError: isValidAddress } = mainInput.validity;
+    if (!isValidAddress) {
+        mainInput.title = 'Invalid address!!!!!!!!';
+    }
+});
 mainInput.value = player;
 let charts = [];
 (() => __awaiter(void 0, void 0, void 0, function* () {

@@ -27,7 +27,14 @@
   <body>
     <div id="input-container">
       <form action="">
-        <input type="text" id="player-input" name="player" />
+        <input
+          type="text"
+          id="player-input"
+          name="player"
+          autocomplete="off"
+          maxlength="42"
+          pattern="0x[0-9a-zA-Z]{40}"
+        />
       </form>
     </div>
     <div id="player-info">
