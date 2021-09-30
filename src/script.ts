@@ -31,22 +31,27 @@ const getManyGraphEntities = async (
 ) => {
   const allEntities = [];
 
-  for (let i = 0; ; i++) {
+  for (let i = 0; i < 6; i++) {
     const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
     const entities = getDataFromResponse(graphResponse);
 
     if (entities === undefined || entities.length === 0) {
-      return allEntities;
+      break;
     } else {
       allEntities.push(...entities);
     }
   }
+  return allEntities;
 };
 
 const playerPlanetInfo = async (playerAddress: string): Promise<Planet[]> => {
   return getManyGraphEntities(
     (i) => `{
-      planets(where: {owner: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+      planets(where: {owner: "${playerAddress}"},
+              first: 1000,
+              skip: ${i * 1000},
+              orderBy: planetLevel,
+              orderDirection: desc) {
         id,
         planetLevel,
         planetType,
