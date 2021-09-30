@@ -24,43 +24,65 @@ const getGraphQLData = async (graphApiUrl: string, query: string) => {
 
 type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
 type Planet = { id: string; planetLevel: number; planetType: PlanetType; milliEnergyCap: number };
-type PlayerPlanets = { data: { planets: Planet[] } };
 
-const playerPlanetInfo = async (playerAddress: string): Promise<Planet[]> => {
-  //FIXME: delete fallback later
-  const response = await fetch('http://localhost:5500/src/data.json');
-  return response.json();
-
-  const allPlanets: Planet[] = [];
+// get around limit of only getting 1000 "things" at a time by sending requests over and over
+const getManyGraphEntities = async (
+  query: (i: number) => string,
+  getDataFromResponse: (response: any) => any[] | undefined
+) => {
+  const allEntities = [];
 
   for (let i = 0; ; i++) {
-    const graphResponse = <PlayerPlanets>await getGraphQLData(
-      GRAPH_API_URL,
-      `{
-        planets(where: {owner: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-          id,
-          planetLevel,
-          planetType,
-          milliEnergyCap
-        }
-      }`
-    );
+    const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
+    const entities = getDataFromResponse(graphResponse);
 
-    const planets = graphResponse.data.planets;
-    console.log({ planets });
-
-    if (planets === undefined || planets.length === 0) {
-      break;
+    if (entities === undefined || entities.length === 0) {
+      return allEntities;
     } else {
-      allPlanets.push(...planets);
+      allEntities.push(...entities);
     }
   }
-
-  console.log(allPlanets);
-  return allPlanets;
 };
 
-//
+const playerPlanetInfo = async (playerAddress: string): Promise<Planet[]> => {
+  return getManyGraphEntities(
+    (i) => `{
+      planets(where: {owner: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+        id,
+        planetLevel,
+        planetType,
+        milliEnergyCap
+      }
+    }`,
+    (respone) => respone.data.planets
+  );
+};
+
+type Artifact = { artifactType: string; rarity: string };
+
+const getPlayerArtifacts = async (playerAddress: string): Promise<Artifact[]> => {
+  return getManyGraphEntities(
+    (i) => `{
+        artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+          artifactType
+          rarity
+        }
+      }`,
+    (respone) => respone.data.artifacts
+  );
+};
+
+type Arrival = { id: string };
+const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> => {
+  return getManyGraphEntities(
+    (i) => `{
+    arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+      id
+    }
+  }`,
+    (response) => response.data.arrivals
+  );
+};
 
 const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
   const planetTypesByLevel: { [key: string]: number[] } = {};
@@ -81,7 +103,6 @@ const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
 
   if (!ctx) throw new Error('Failed to get ctx');
 
-  // ! important thing to consider: http://betweentwobrackets.com/data-graphics-and-colour-vision/
   return new Chart.Chart(ctx, {
     type: 'bar',
     data: {
@@ -120,47 +141,53 @@ const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
   });
 };
 
-// const createPlanetTypesGraph = (playerPlanets: Planet[]) => {
-//   const planetsByType: { [key: string]: number } = {};
-//   const planetTypes = ['PLANET', 'SILVER_MINE', 'RUINS', 'TRADING_POST', 'SILVER_BANK'];
-//   for (const planetType of planetTypes) {
-//     planetsByType[planetType] = playerPlanets.filter((p) => p.planetType === planetType).length;
-//   }
+// populating the data in the grid
 
-//   const canvas = <HTMLCanvasElement>document.querySelector('#planet-types canvas');
-//   const ctx = canvas.getContext('2d');
-
-//   if (!ctx) throw new Error('Failed to get ctx');
-
-//   return new Chart.Chart(ctx, {
-//     type: 'pie',
-//     data: {
-//       labels: ['Planet', 'Asteroid Field', 'Foundry', 'Spacetime Rip', 'Quasar'],
-//       datasets: [
-//         {
-//           data: Object.values(planetsByType),
-//           backgroundColor: [
-//             '#ff5100',
-//             'rgb(255, 221, 48)',
-//             'rgb(193, 60, 255)',
-//             'rgb(20, 70, 200)',
-//             '#f30304',
-//           ],
-
-//           borderWidth: 2,
-//         },
-//       ],
-//     },
-//   });
-// };
-
-const populateBasicData = (playerPlanets: Planet[]) => {
-  const totalEnergyCapContainer = <HTMLDivElement>document.getElementById('total-energy-cap');
+const calculateEnergyCap = (playerPlanets: Planet[]) => {
+  const totalEnergyCapContainer = document.getElementById('total-energy-cap');
+  if (!totalEnergyCapContainer) return;
 
   const totalEnergyCap = playerPlanets.reduce((a, b) => a + b.milliEnergyCap / 1000, 0);
 
-  totalEnergyCapContainer.innerText = totalEnergyCap.toLocaleString();
+  totalEnergyCapContainer.innerText = Math.round(totalEnergyCap).toLocaleString();
 };
+
+const calculateAllArtifacts = async (address: string) => {
+  const artifactsAmountContainer = document.getElementById('total-artifacts-amount');
+  if (!artifactsAmountContainer) return;
+
+  const playerArtifacts = await getPlayerArtifacts(address);
+
+  artifactsAmountContainer.innerText = playerArtifacts.length.toString();
+};
+
+const calculateAmountOfMoves = async (address: string) => {
+  const movesAmountContainer = document.getElementById('total-moves-made');
+  if (!movesAmountContainer) return;
+
+  const playerMoves = await getPlayerMoves(address);
+
+  movesAmountContainer.innerText = playerMoves.length.toString();
+};
+
+type LeaderBoard = { entries: { ethAddress: string; score?: number; twitter?: string }[] };
+const calculateRanking = async (address: string) => {
+  const rankContainer = document.getElementById('rank');
+  if (!rankContainer) return;
+
+  const response = await fetch('https://api.zkga.me/leaderboard');
+  const leaderBoard = <LeaderBoard>await response.json();
+  const sortedLeaderBoard = leaderBoard.entries
+    .filter(
+      (p): p is { ethAddress: string; twitter?: string; score: number } => p.score !== undefined
+    )
+    .sort((a, b) => a.score - b.score);
+
+  const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
+
+  rankContainer.innerText = playerIndex === -1 ? 'none' :( playerIndex + 1).toString();
+};
+
 
 //  Main Script
 
@@ -204,10 +231,13 @@ const onchange = async () => {
 
   charts.forEach((c) => c.destroy());
 
-  populateBasicData(playerPlanets);
+  calculateAllArtifacts(mainInput.value);
+  calculateEnergyCap(playerPlanets);
+  calculateAmountOfMoves(mainInput.value);
+  calculateRanking(mainInput.value)
   charts.push(createPlanetLevelsGraph(playerPlanets));
 };
 
 mainInput.onchange = onchange;
-
+mainInput.value = '0xe8d3dd97cd3a33b7b8f94e3195e98d3912ac50e9';
 onchange();

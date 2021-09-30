@@ -31,3 +31,22 @@ section {
     font-family: inherit;
   }
 }
+
+// don't make fun of me for my class names
+section.grid {
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.grid-item {
+  .title {
+    opacity: 0.8;
+    font-size: 14px;
+  }
+
+  .content {
+    font-size: 40px;
+    margin: 10px 0px;
+  }
+}

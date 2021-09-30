@@ -25,11 +25,26 @@
   </head>
   <body>
     <div id="input-container">
-      <input type="text" id="player-input" data-autocomplete="true" />
+      <input type="text" id="player-input" />
     </div>
     <div id="player-info">
       <section class="grid">
-        <div id="total-energy-cap"></div>
+        <div class="grid-item">
+          <span class="title">Total Energy Cap</span>
+          <div class="content" id="total-energy-cap">0</div>
+        </div>
+        <div class="grid-item">
+          <span class="title"># of artifacts (prospected & found)</span>
+          <div class="content" id="total-artifacts-amount">0</div>
+        </div>
+        <div class="grid-item">
+          <span class="title">Total moves made</span>
+          <div class="content" id="total-moves-made">0</div>
+        </div>
+        <div class="grid-item">
+          <span class="title">Ranking</span>
+          <div class="content" id="rank">0</div>
+        </div>
       </section>
       <section id="planets-by-level">
         <h2>Celestial Bodies by Level</h2>
