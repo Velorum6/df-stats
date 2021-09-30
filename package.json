@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify --debug  ./src/script.ts -p tsify > ./dist/bundle.js",
-    "build:watch": "watchify --debug ./src/script.ts -p tsify -o ./dist/bundle.js -v",
+    "build": "browserify  ./src/script.ts -p tsify > ./dist/bundle.js",
+    "build:watch": "watchify ./src/script.ts -p tsify -o ./dist/bundle.js -v",
     "format": "prettier --write ."
   },
   "repository": {
