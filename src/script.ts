@@ -282,7 +282,7 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
 };
 
 const urlParams = new URLSearchParams(window.location.search);
-const player = urlParams.get('player') || '0xe8d3dd97cd3a33b7b8f94e3195e98d3912ac50e9';
+const player = urlParams.get('player') || '0x0797846bdb85e3303ad745e9d4e7d563a8ca1702';
 
 const mainInput = <HTMLInputElement>document.getElementById('player-input');
 
