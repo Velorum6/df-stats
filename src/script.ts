@@ -185,9 +185,8 @@ const calculateRanking = async (address: string) => {
 
   const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
 
-  rankContainer.innerText = playerIndex === -1 ? 'none' :( playerIndex + 1).toString();
+  rankContainer.innerText = playerIndex === -1 ? 'none' : (playerIndex + 1).toString();
 };
-
 
 //  Main Script
 
@@ -222,11 +221,15 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
   };
 };
 
+const urlParams = new URLSearchParams(window.location.search);
+const player = urlParams.get('player') || '0xe8d3dd97cd3a33b7b8f94e3195e98d3912ac50e9';
+
 const mainInput = <HTMLInputElement>document.getElementById('player-input');
+mainInput.value = player;
 
 let charts: Chart.Chart[] = [];
 
-const onchange = async () => {
+(async () => {
   const playerPlanets = await playerPlanetInfo(mainInput.value);
 
   charts.forEach((c) => c.destroy());
@@ -234,10 +237,6 @@ const onchange = async () => {
   calculateAllArtifacts(mainInput.value);
   calculateEnergyCap(playerPlanets);
   calculateAmountOfMoves(mainInput.value);
-  calculateRanking(mainInput.value)
+  calculateRanking(mainInput.value);
   charts.push(createPlanetLevelsGraph(playerPlanets));
-};
-
-mainInput.onchange = onchange;
-mainInput.value = '0xe8d3dd97cd3a33b7b8f94e3195e98d3912ac50e9';
-onchange();
+})();
