@@ -13378,6 +13378,8 @@ const calculateRanking = (address) => __awaiter(void 0, void 0, void 0, function
 //  Main Script
 Chart.Chart.defaults.font.family = "'IBM Plex Mono', monospace";
 Chart.Chart.defaults.aspectRatio = 3;
+Chart.Chart.defaults.borderColor = 'rgb(232, 230, 227, 0.1)';
+Chart.Chart.defaults.color = 'rgb(232, 230, 227)';
 Chart.Chart.defaults.plugins.legend.display = false;
 Chart.Tooltip.positioners.middle = (items, eventPosition) => {
     if (items.length !== 1) {

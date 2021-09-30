@@ -8,6 +8,8 @@ body {
   font-family: 'IBM Plex Mono', monospace;
   padding: 40px 60px;
   min-height: 100vh;
+  background-color: #181a1b;
+  color: rgb(232, 230, 227);
 }
 
 section {
@@ -29,6 +31,10 @@ section {
     width: calc(max(50vw, 200px));
     padding: 2px 5px;
     font-family: inherit;
+
+    color: inherit;
+    background-color: rgb(24, 26, 27);
+    border: 1px solid #7d858d;
   }
 }
 
