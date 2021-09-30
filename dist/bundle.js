@@ -13234,6 +13234,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRandomActionId = void 0;
 const Chart = require("chart.js");
@@ -13461,7 +13462,7 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
     };
 };
 const urlParams = new URLSearchParams(window.location.search);
-const player = urlParams.get('player') || '0x0797846bdb85e3303ad745e9d4e7d563a8ca1702';
+const player = ((_a = urlParams.get('player')) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || '0x0797846bdb85e3303ad745e9d4e7d563a8ca1702';
 const mainInput = document.getElementById('player-input');
 mainInput.addEventListener('input', () => {
     const { customError: isValidAddress } = mainInput.validity;
