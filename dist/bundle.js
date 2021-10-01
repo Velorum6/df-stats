@@ -13239,7 +13239,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRandomActionId = void 0;
 const Chart = require("chart.js");
 // GraphQL utils
-const GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-3';
+const GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield fetch(graphApiUrl, {
         method: 'POST',

@@ -5,7 +5,7 @@ import Chart = require('chart.js');
 // GraphQL utils
 
 const GRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-3';
+  'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 
 const getGraphQLData = async (graphApiUrl: string, query: string) => {
   const response = await fetch(graphApiUrl, {
