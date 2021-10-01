@@ -13426,7 +13426,8 @@ const calculateRanking = (address) => __awaiter(void 0, void 0, void 0, function
     const leaderBoard = yield response.json();
     const sortedLeaderBoard = leaderBoard.entries
         .filter((p) => p.score !== undefined)
-        .sort((a, b) => a.score - b.score);
+        .sort((a, b) => a.score - b.score)
+        .reverse();
     const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
     rankContainer.innerText = playerIndex === -1 ? 'none' : '#' + (playerIndex + 1).toString();
 });

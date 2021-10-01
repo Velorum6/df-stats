@@ -239,7 +239,8 @@ const calculateRanking = async (address: string) => {
     .filter(
       (p): p is { ethAddress: string; twitter?: string; score: number } => p.score !== undefined
     )
-    .sort((a, b) => a.score - b.score);
+    .sort((a, b) => a.score - b.score)
+    .reverse();
 
   const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
 
