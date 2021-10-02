@@ -2,91 +2,11 @@
 
 import Chart = require('chart.js');
 
-// GraphQL utils
-
-const GRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
-
-const getGraphQLData = async (graphApiUrl: string, query: string) => {
-  const response = await fetch(graphApiUrl, {
-    method: 'POST',
-    body: JSON.stringify({ query }),
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-  });
-
-  const json = await response.json();
-  return json;
-};
+import { animateNumber, formatNumber, getLeaderBoard, getRank } from './utils/Utils';
+import { getPlayerArtifacts, getPlayerMoves, getPlayerPlanets } from './utils/GraphQueries';
 
 type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
 type Planet = { id: string; planetLevel: number; planetType: PlanetType; milliEnergyCap: number };
-
-// get around limit of only getting 1000 "things" at a time by sending requests over and over
-const getManyGraphEntities = async (
-  query: (i: number) => string,
-  getDataFromResponse: (response: any) => any[] | undefined
-) => {
-  const allEntities = [];
-
-  for (let i = 0; i < 6; i++) {
-    const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
-    const entities = getDataFromResponse(graphResponse);
-
-    if (entities === undefined || entities.length === 0) {
-      break;
-    } else {
-      allEntities.push(...entities);
-    }
-  }
-  return allEntities;
-};
-
-const playerPlanetInfo = async (playerAddress: string): Promise<Planet[]> => {
-  return getManyGraphEntities(
-    (i) => `{
-      planets(where: {owner: "${playerAddress}"},
-              first: 1000,
-              skip: ${i * 1000},
-              orderBy: planetLevel,
-              orderDirection: desc) {
-        id,
-        planetLevel,
-        planetType,
-        milliEnergyCap
-      }
-    }`,
-    (respone) => respone.data.planets
-  );
-};
-
-type Artifact = { artifactType: string; rarity: string };
-
-const getPlayerArtifacts = async (playerAddress: string): Promise<Artifact[]> => {
-  return getManyGraphEntities(
-    (i) => `{
-        artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-          artifactType
-          rarity
-        }
-      }`,
-    (respone) => respone.data.artifacts
-  );
-};
-
-type Arrival = { id: string };
-const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> => {
-  return getManyGraphEntities(
-    (i) => `{
-    arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-      id
-    }
-  }`,
-    (response) => response.data.arrivals
-  );
-};
 
 const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
   const planetTypesByLevel: { [key: string]: number[] } = {};
@@ -124,21 +44,11 @@ const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
       })),
     },
     options: {
-      scales: {
-        x: {
-          stacked: true,
-        },
-        y: {
-          stacked: true,
-        },
-      },
+      scales: { x: { stacked: true }, y: { stacked: true } },
       plugins: {
         tooltip: {
           // @ts-ignore
           position: 'middle',
-        },
-        title: {
-          text: 'Celestial Bodies by level',
         },
       },
     },
@@ -146,60 +56,6 @@ const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
 };
 
 // populating the data in the grid
-
-const formatNumber = (num: number, smallDec = 0): string => {
-  if (num < 1000) {
-    if (`${num}` === num.toFixed(0)) {
-      return `${num.toFixed(0)}`;
-    } else {
-      return `${num.toFixed(smallDec)}`;
-    }
-  }
-
-  const suffixes = ['', 'K', 'M', 'B', 'T', 'q', 'Q'];
-  let log000 = 0;
-  let rem = num;
-  while (rem / 1000 >= 1) {
-    rem /= 1000;
-    log000++;
-  }
-
-  if (log000 === 0) return `${Math.floor(num)}`;
-
-  if (rem < 10) return `${rem.toFixed(1)}${suffixes[log000]}`;
-  else if (rem < 100) return `${rem.toFixed(1)}${suffixes[log000]}`;
-  else if (log000 < suffixes.length) return `${rem.toFixed(0)}${suffixes[log000]}`;
-  else return `${rem.toFixed(0)}E${log000 * 3}`;
-};
-
-export const getRandomActionId = () => {
-  const hex = '0123456789abcdef';
-
-  let ret = '';
-  for (let i = 0; i < 10; i += 1) {
-    ret += hex[Math.floor(hex.length * Math.random())];
-  }
-  return ret;
-};
-
-const animateNumber = (
-  elem: HTMLElement,
-  num: number,
-  formatNumber: (num: number) => string | number = (i) => i
-) => {
-  let currentNum = 0;
-
-  for (let i = 0; i < 100; i++) {
-    setTimeout(() => {
-      currentNum += (num - currentNum) / 3;
-      elem.innerText = formatNumber(currentNum).toString();
-    }, i * 25);
-  }
-
-  setTimeout(() => {
-    elem.innerText = formatNumber(num).toString();
-  }, 2500);
-};
 
 const calculateEnergyCap = (playerPlanets: Planet[]) => {
   const totalEnergyCapContainer = document.getElementById('total-energy-cap');
@@ -228,23 +84,14 @@ const calculateAmountOfMoves = async (address: string) => {
   animateNumber(movesAmountContainer, playerMoves.length, Math.round);
 };
 
-type LeaderBoard = { entries: { ethAddress: string; score?: number; twitter?: string }[] };
-const calculateRanking = async (address: string) => {
+const calculateRank = async (address: string) => {
   const rankContainer = document.getElementById('rank');
   if (!rankContainer) return;
 
-  const response = await fetch('https://api.zkga.me/leaderboard');
-  const leaderBoard = <LeaderBoard>await response.json();
-  const sortedLeaderBoard = leaderBoard.entries
-    .filter(
-      (p): p is { ethAddress: string; twitter?: string; score: number } => p.score !== undefined
-    )
-    .sort((a, b) => a.score - b.score)
-    .reverse();
+  const leaderBoard = getLeaderBoard();
+  const { rank } = getRank(address, await leaderBoard);
 
-  const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
-
-  rankContainer.innerText = playerIndex === -1 ? 'none' : '#' + (playerIndex + 1).toString();
+  rankContainer.innerText = rank !== -1 ? rank.toString() : 'none';
 };
 
 //  Main Script
@@ -301,13 +148,13 @@ mainInput.value = player;
 let charts: Chart.Chart[] = [];
 
 (async () => {
-  const playerPlanets = await playerPlanetInfo(mainInput.value);
+  const playerPlanets = await getPlayerPlanets(mainInput.value);
 
   charts.forEach((c) => c.destroy());
 
   calculateAllArtifacts(mainInput.value);
   calculateEnergyCap(playerPlanets);
   calculateAmountOfMoves(mainInput.value);
-  calculateRanking(mainInput.value);
+  calculateRank(mainInput.value);
   charts.push(createPlanetLevelsGraph(playerPlanets));
 })();

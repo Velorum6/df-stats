@@ -13236,66 +13236,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomActionId = void 0;
 const Chart = require("chart.js");
-// GraphQL utils
-const GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
-const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield fetch(graphApiUrl, {
-        method: 'POST',
-        body: JSON.stringify({ query }),
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-        },
-    });
-    const json = yield response.json();
-    return json;
-});
-// get around limit of only getting 1000 "things" at a time by sending requests over and over
-const getManyGraphEntities = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
-    const allEntities = [];
-    for (let i = 0; i < 6; i++) {
-        const graphResponse = yield getGraphQLData(GRAPH_API_URL, query(i));
-        const entities = getDataFromResponse(graphResponse);
-        if (entities === undefined || entities.length === 0) {
-            break;
-        }
-        else {
-            allEntities.push(...entities);
-        }
-    }
-    return allEntities;
-});
-const playerPlanetInfo = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return getManyGraphEntities((i) => `{
-      planets(where: {owner: "${playerAddress}"},
-              first: 1000,
-              skip: ${i * 1000},
-              orderBy: planetLevel,
-              orderDirection: desc) {
-        id,
-        planetLevel,
-        planetType,
-        milliEnergyCap
-      }
-    }`, (respone) => respone.data.planets);
-});
-const getPlayerArtifacts = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return getManyGraphEntities((i) => `{
-        artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-          artifactType
-          rarity
-        }
-      }`, (respone) => respone.data.artifacts);
-});
-const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return getManyGraphEntities((i) => `{
-    arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-      id
-    }
-  }`, (response) => response.data.arrivals);
-});
+const Utils_1 = require("./utils/Utils");
+const GraphQueries_1 = require("./utils/GraphQueries");
 const createPlanetLevelsGraph = (playerPlanets) => {
     const planetTypesByLevel = {};
     const planetTypes = ['PLANET', 'SILVER_MINE', 'RUINS', 'TRADING_POST', 'SILVER_BANK'];
@@ -13328,108 +13271,45 @@ const createPlanetLevelsGraph = (playerPlanets) => {
             })),
         },
         options: {
-            scales: {
-                x: {
-                    stacked: true,
-                },
-                y: {
-                    stacked: true,
-                },
-            },
+            scales: { x: { stacked: true }, y: { stacked: true } },
             plugins: {
                 tooltip: {
                     // @ts-ignore
                     position: 'middle',
-                },
-                title: {
-                    text: 'Celestial Bodies by level',
                 },
             },
         },
     });
 };
 // populating the data in the grid
-const formatNumber = (num, smallDec = 0) => {
-    if (num < 1000) {
-        if (`${num}` === num.toFixed(0)) {
-            return `${num.toFixed(0)}`;
-        }
-        else {
-            return `${num.toFixed(smallDec)}`;
-        }
-    }
-    const suffixes = ['', 'K', 'M', 'B', 'T', 'q', 'Q'];
-    let log000 = 0;
-    let rem = num;
-    while (rem / 1000 >= 1) {
-        rem /= 1000;
-        log000++;
-    }
-    if (log000 === 0)
-        return `${Math.floor(num)}`;
-    if (rem < 10)
-        return `${rem.toFixed(1)}${suffixes[log000]}`;
-    else if (rem < 100)
-        return `${rem.toFixed(1)}${suffixes[log000]}`;
-    else if (log000 < suffixes.length)
-        return `${rem.toFixed(0)}${suffixes[log000]}`;
-    else
-        return `${rem.toFixed(0)}E${log000 * 3}`;
-};
-const getRandomActionId = () => {
-    const hex = '0123456789abcdef';
-    let ret = '';
-    for (let i = 0; i < 10; i += 1) {
-        ret += hex[Math.floor(hex.length * Math.random())];
-    }
-    return ret;
-};
-exports.getRandomActionId = getRandomActionId;
-const animateNumber = (elem, num, formatNumber = (i) => i) => {
-    let currentNum = 0;
-    for (let i = 0; i < 100; i++) {
-        setTimeout(() => {
-            currentNum += (num - currentNum) / 3;
-            elem.innerText = formatNumber(currentNum).toString();
-        }, i * 25);
-    }
-    setTimeout(() => {
-        elem.innerText = formatNumber(num).toString();
-    }, 2500);
-};
 const calculateEnergyCap = (playerPlanets) => {
     const totalEnergyCapContainer = document.getElementById('total-energy-cap');
     if (!totalEnergyCapContainer)
         return;
     const totalEnergyCap = playerPlanets.reduce((a, b) => a + b.milliEnergyCap / 1000, 0);
-    animateNumber(totalEnergyCapContainer, totalEnergyCap, (i) => formatNumber(Math.round(i)));
+    (0, Utils_1.animateNumber)(totalEnergyCapContainer, totalEnergyCap, (i) => (0, Utils_1.formatNumber)(Math.round(i)));
 };
 const calculateAllArtifacts = (address) => __awaiter(void 0, void 0, void 0, function* () {
     const artifactsAmountContainer = document.getElementById('total-artifacts-amount');
     if (!artifactsAmountContainer)
         return;
-    const playerArtifacts = yield getPlayerArtifacts(address);
-    animateNumber(artifactsAmountContainer, playerArtifacts.length, Math.round);
+    const playerArtifacts = yield (0, GraphQueries_1.getPlayerArtifacts)(address);
+    (0, Utils_1.animateNumber)(artifactsAmountContainer, playerArtifacts.length, Math.round);
 });
 const calculateAmountOfMoves = (address) => __awaiter(void 0, void 0, void 0, function* () {
     const movesAmountContainer = document.getElementById('total-moves-made');
     if (!movesAmountContainer)
         return;
-    const playerMoves = yield getPlayerMoves(address);
-    animateNumber(movesAmountContainer, playerMoves.length, Math.round);
+    const playerMoves = yield (0, GraphQueries_1.getPlayerMoves)(address);
+    (0, Utils_1.animateNumber)(movesAmountContainer, playerMoves.length, Math.round);
 });
-const calculateRanking = (address) => __awaiter(void 0, void 0, void 0, function* () {
+const calculateRank = (address) => __awaiter(void 0, void 0, void 0, function* () {
     const rankContainer = document.getElementById('rank');
     if (!rankContainer)
         return;
-    const response = yield fetch('https://api.zkga.me/leaderboard');
-    const leaderBoard = yield response.json();
-    const sortedLeaderBoard = leaderBoard.entries
-        .filter((p) => p.score !== undefined)
-        .sort((a, b) => a.score - b.score)
-        .reverse();
-    const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === address);
-    rankContainer.innerText = playerIndex === -1 ? 'none' : '#' + (playerIndex + 1).toString();
+    const leaderBoard = (0, Utils_1.getLeaderBoard)();
+    const { rank } = (0, Utils_1.getRank)(address, yield leaderBoard);
+    rankContainer.innerText = rank !== -1 ? rank.toString() : 'none';
 });
 //  Main Script
 Chart.Chart.defaults.font.family = "'IBM Plex Mono', monospace";
@@ -13474,13 +13354,183 @@ mainInput.addEventListener('input', () => {
 mainInput.value = player;
 let charts = [];
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    const playerPlanets = yield playerPlanetInfo(mainInput.value);
+    const playerPlanets = yield (0, GraphQueries_1.getPlayerPlanets)(mainInput.value);
     charts.forEach((c) => c.destroy());
     calculateAllArtifacts(mainInput.value);
     calculateEnergyCap(playerPlanets);
     calculateAmountOfMoves(mainInput.value);
-    calculateRanking(mainInput.value);
+    calculateRank(mainInput.value);
     charts.push(createPlanetLevelsGraph(playerPlanets));
 }))();
 
-},{"chart.js":1}]},{},[2]);
+},{"./utils/GraphQueries":3,"./utils/Utils":5,"chart.js":1}],3:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getPlayerMoves = exports.getPlayerArtifacts = exports.getPlayerPlanets = void 0;
+const GraphUtils_1 = require("./GraphUtils");
+const getPlayerPlanets = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
+    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
+        planets(where: {owner: "${playerAddress}"},
+                first: 1000,
+                skip: ${i * 1000},
+                orderBy: planetLevel,
+                orderDirection: desc) {
+          id,
+          planetLevel,
+          planetType,
+          milliEnergyCap
+        }
+      }`, (respone) => respone.data.planets);
+});
+exports.getPlayerPlanets = getPlayerPlanets;
+const getPlayerArtifacts = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
+    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
+          artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+            artifactType
+            rarity
+          }
+        }`, (response) => response.data.artifacts);
+});
+exports.getPlayerArtifacts = getPlayerArtifacts;
+const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
+    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
+      arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
+        id
+      }
+    }`, (response) => response.data.arrivals);
+});
+exports.getPlayerMoves = getPlayerMoves;
+
+},{"./GraphUtils":4}],4:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getManyGraphEntities = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
+exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
+const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield fetch(graphApiUrl, {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+    });
+    const json = yield response.json();
+    return json;
+});
+exports.getGraphQLData = getGraphQLData;
+// get around limit of only getting 1000 "things" at a time by sending requests over and over
+const getManyGraphEntities = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
+    const allEntities = [];
+    for (let i = 0; i < 6; i++) {
+        const graphResponse = yield (0, exports.getGraphQLData)(exports.GRAPH_API_URL, query(i));
+        const entities = getDataFromResponse(graphResponse);
+        if (entities === undefined || entities.length === 0) {
+            break;
+        }
+        else {
+            allEntities.push(...entities);
+        }
+    }
+    return allEntities;
+});
+exports.getManyGraphEntities = getManyGraphEntities;
+
+},{}],5:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLeaderBoard = exports.getRank = exports.animateNumber = exports.getRandomActionId = exports.formatNumber = void 0;
+const formatNumber = (num, smallDec = 0) => {
+    if (num < 1000) {
+        if (`${num}` === num.toFixed(0)) {
+            return `${num.toFixed(0)}`;
+        }
+        else {
+            return `${num.toFixed(smallDec)}`;
+        }
+    }
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'q', 'Q'];
+    let log000 = 0;
+    let rem = num;
+    while (rem / 1000 >= 1) {
+        rem /= 1000;
+        log000++;
+    }
+    if (log000 === 0)
+        return `${Math.floor(num)}`;
+    if (rem < 10)
+        return `${rem.toFixed(1)}${suffixes[log000]}`;
+    else if (rem < 100)
+        return `${rem.toFixed(1)}${suffixes[log000]}`;
+    else if (log000 < suffixes.length)
+        return `${rem.toFixed(0)}${suffixes[log000]}`;
+    else
+        return `${rem.toFixed(0)}E${log000 * 3}`;
+};
+exports.formatNumber = formatNumber;
+const getRandomActionId = () => {
+    const hex = '0123456789abcdef';
+    let ret = '';
+    for (let i = 0; i < 10; i += 1) {
+        ret += hex[Math.floor(hex.length * Math.random())];
+    }
+    return ret;
+};
+exports.getRandomActionId = getRandomActionId;
+const animateNumber = (elem, num, formatNumber = (i) => i) => {
+    let currentNum = 0;
+    for (let i = 0; i < 100; i++) {
+        setTimeout(() => {
+            currentNum += (num - currentNum) / 3;
+            elem.innerText = formatNumber(currentNum).toString();
+        }, i * 25);
+    }
+    setTimeout(() => {
+        elem.innerText = formatNumber(num).toString();
+    }, 2500);
+};
+exports.animateNumber = animateNumber;
+const getRank = (playerAddress, leaderBoard) => {
+    const sortedLeaderBoard = leaderBoard.entries
+        .filter((p) => p.score !== undefined)
+        .sort((a, b) => a.score - b.score)
+        .reverse();
+    const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === playerAddress);
+    return { rank: playerIndex + 1, player: sortedLeaderBoard[playerIndex] };
+};
+exports.getRank = getRank;
+const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield fetch('https://api.zkga.me/leaderboard');
+    const leaderBoard = yield response.json();
+    return leaderBoard;
+});
+exports.getLeaderBoard = getLeaderBoard;
+
+},{}]},{},[2]);
