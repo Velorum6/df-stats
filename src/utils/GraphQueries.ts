@@ -1,9 +1,14 @@
 import { getManyGraphEntities } from './GraphUtils';
 
-type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
-type Planet = { id: string; planetLevel: number; planetType: PlanetType; milliEnergyCap: number };
-type Artifact = { artifactType: string; rarity: string };
-type Arrival = { id: string };
+export type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
+export type Planet = {
+  id: string;
+  planetLevel: number;
+  planetType: PlanetType;
+  milliEnergyCap: number;
+};
+export type Artifact = { artifactType: string; rarity: string };
+export type Arrival = { id: string };
 
 export const getPlayerPlanets = async (playerAddress: string): Promise<Planet[]> => {
   return getManyGraphEntities(

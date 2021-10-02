@@ -13281,6 +13281,56 @@ const createPlanetLevelsGraph = (playerPlanets) => {
         },
     });
 };
+const createArtifactsGraph = (artifacts) => {
+    const canvas = document.querySelector('#artifacts-by-rarity canvas');
+    const artifactRarities = ['COMMON', 'RARE', 'EPIC', 'LEGENDARY', 'MYTHIC'];
+    const bgColors = {
+        MONOLITH: '#d611ea',
+        COLOSSUS: '#ee6194',
+        SPACESHIP: '#ff5200',
+        PYRAMID: '#ff8145',
+        WORMHOLE: '#28939b',
+        PLANETARYSHIELD: '#9c81ee',
+        PHOTOIDCANNON: '#ff7dff',
+        BLOOMFILTER: '#4baf37',
+        BLACKDOMAIN: '#473f38',
+    };
+    const artifactTypes = Object.keys(bgColors);
+    const ctx = canvas.getContext('2d');
+    if (!ctx)
+        throw new Error('Failed to get ctx');
+    debugger;
+    console.log({
+        data: {
+            labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
+            datasets: artifactTypes.map((artifactType) => ({
+                label: artifactType,
+                data: artifactRarities.map((r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r).length),
+                backgroundColor: bgColors[artifactType],
+            })),
+        },
+    });
+    return new Chart.Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
+            datasets: artifactTypes.map((artifactType) => ({
+                label: artifactType,
+                data: artifactRarities.map((r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r).length),
+                backgroundColor: bgColors[artifactType],
+            })),
+        },
+        options: {
+            scales: { x: { stacked: true }, y: { stacked: true } },
+            plugins: {
+                tooltip: {
+                    // @ts-ignore
+                    position: 'middle',
+                },
+            },
+        },
+    });
+};
 // populating the data in the grid
 const calculateEnergyCap = (playerPlanets) => {
     const totalEnergyCapContainer = document.getElementById('total-energy-cap');
@@ -13343,7 +13393,7 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
     };
 };
 const urlParams = new URLSearchParams(window.location.search);
-const player = ((_a = urlParams.get('player')) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || '0x0797846bdb85e3303ad745e9d4e7d563a8ca1702';
+const player = ((_a = urlParams.get('player')) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || '0x8459c6bebe2d53b4dcaa71499a1ae4274c0e4df9';
 const mainInput = document.getElementById('player-input');
 mainInput.addEventListener('input', () => {
     const { customError: isValidAddress } = mainInput.validity;
@@ -13352,15 +13402,15 @@ mainInput.addEventListener('input', () => {
     }
 });
 mainInput.value = player;
-let charts = [];
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const playerPlanets = yield (0, GraphQueries_1.getPlayerPlanets)(mainInput.value);
-    charts.forEach((c) => c.destroy());
+    const playerArtifacts = yield (0, GraphQueries_1.getPlayerArtifacts)(player);
     calculateAllArtifacts(mainInput.value);
     calculateEnergyCap(playerPlanets);
     calculateAmountOfMoves(mainInput.value);
     calculateRank(mainInput.value);
-    charts.push(createPlanetLevelsGraph(playerPlanets));
+    createPlanetLevelsGraph(playerPlanets);
+    createArtifactsGraph(playerArtifacts);
 }))();
 
 },{"./utils/GraphQueries":3,"./utils/Utils":5,"chart.js":1}],3:[function(require,module,exports){
