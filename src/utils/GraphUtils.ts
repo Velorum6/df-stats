@@ -1,7 +1,7 @@
 export const GRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 
-export const getGraphQLData = async (graphApiUrl: string, query: string) => {
+export const getGraphQLData = async (query: string, graphApiUrl: string = getRoundQueryUrl()) => {
   const response = await fetch(graphApiUrl, {
     method: 'POST',
     body: JSON.stringify({ query }),
@@ -24,7 +24,7 @@ export const graphEntitiesSkip = async (
   const allEntities = [];
 
   for (let i = 0; i < 6; i++) {
-    const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
+    const graphResponse = await getGraphQLData(query(i));
     const entities = getDataFromResponse(graphResponse);
 
     if (entities === undefined || entities.length === 0) {
@@ -48,7 +48,7 @@ export const graphEntitiesId = async (
   while (true) {
     console.log(i);
     console.log(query(i));
-    const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
+    const graphResponse = await getGraphQLData(query(i));
 
     const entities = getDataFromResponse(graphResponse);
     if (entities === undefined) break;
@@ -65,4 +65,17 @@ export const graphEntitiesId = async (
   }
 
   return allEntities;
+};
+
+export const getRoundQueryUrl = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const roundParam = searchParams.get('round');
+
+  if (!roundParam) return GRAPH_API_URL;
+
+  const parsedRound = parseInt(roundParam);
+
+  if (!parsedRound || parsedRound < 0 || parsedRound > 4) return GRAPH_API_URL;
+
+  return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${parsedRound}`;
 };

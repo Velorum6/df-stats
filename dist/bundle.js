@@ -13480,9 +13480,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
+exports.getRoundQueryUrl = exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
 exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
-const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0, function* () {
+const getGraphQLData = (query, graphApiUrl = (0, exports.getRoundQueryUrl)()) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield fetch(graphApiUrl, {
         method: 'POST',
         body: JSON.stringify({ query }),
@@ -13500,7 +13500,7 @@ exports.getGraphQLData = getGraphQLData;
 const graphEntitiesSkip = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
     const allEntities = [];
     for (let i = 0; i < 6; i++) {
-        const graphResponse = yield (0, exports.getGraphQLData)(exports.GRAPH_API_URL, query(i));
+        const graphResponse = yield (0, exports.getGraphQLData)(query(i));
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined || entities.length === 0) {
             break;
@@ -13520,7 +13520,7 @@ const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0
     while (true) {
         console.log(i);
         console.log(query(i));
-        const graphResponse = yield (0, exports.getGraphQLData)(exports.GRAPH_API_URL, query(i));
+        const graphResponse = yield (0, exports.getGraphQLData)(query(i));
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined)
             break;
@@ -13535,6 +13535,17 @@ const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0
     return allEntities;
 });
 exports.graphEntitiesId = graphEntitiesId;
+const getRoundQueryUrl = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const roundParam = searchParams.get('round');
+    if (!roundParam)
+        return exports.GRAPH_API_URL;
+    const parsedRound = parseInt(roundParam);
+    if (!parsedRound || parsedRound < 0 || parsedRound > 4)
+        return exports.GRAPH_API_URL;
+    return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${parsedRound}`;
+};
+exports.getRoundQueryUrl = getRoundQueryUrl;
 
 },{}],5:[function(require,module,exports){
 "use strict";
