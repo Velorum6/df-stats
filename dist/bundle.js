@@ -13299,16 +13299,6 @@ const createArtifactsGraph = (artifacts) => {
     const ctx = canvas.getContext('2d');
     if (!ctx)
         throw new Error('Failed to get ctx');
-    console.log({
-        data: {
-            labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
-            datasets: artifactTypes.map((artifactType) => ({
-                label: artifactType,
-                data: artifactRarities.map((r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r).length),
-                backgroundColor: bgColors[artifactType],
-            })),
-        },
-    });
     return new Chart.Chart(ctx, {
         type: 'bar',
         data: {
@@ -13518,18 +13508,14 @@ const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0
     const allEntities = [];
     let i = 0;
     while (true) {
-        console.log(i);
-        console.log(query(i));
         const graphResponse = yield (0, exports.getGraphQLData)(query(i));
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined)
             break;
         const { data, id } = entities;
-        debugger;
         if (data.length === 0 || typeof id !== 'number')
             break;
         allEntities.push(...data);
-        console.log({ id });
         i = parseInt(id) + 1;
     }
     return allEntities;

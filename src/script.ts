@@ -75,18 +75,6 @@ const createArtifactsGraph = (artifacts: Artifact[]) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Failed to get ctx');
 
-  console.log({
-    data: {
-      labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
-      datasets: artifactTypes.map((artifactType) => ({
-        label: artifactType,
-        data: artifactRarities.map(
-          (r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r).length
-        ),
-        backgroundColor: bgColors[artifactType],
-      })),
-    },
-  });
   return new Chart.Chart(ctx, {
     type: 'bar',
     data: {

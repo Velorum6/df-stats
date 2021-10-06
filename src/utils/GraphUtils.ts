@@ -46,8 +46,6 @@ export const graphEntitiesId = async (
 
   let i = 0;
   while (true) {
-    console.log(i);
-    console.log(query(i));
     const graphResponse = await getGraphQLData(query(i));
 
     const entities = getDataFromResponse(graphResponse);
@@ -55,12 +53,10 @@ export const graphEntitiesId = async (
 
     const { data, id } = entities;
 
-    debugger;
     if (data.length === 0 || typeof id !== 'number') break;
 
     allEntities.push(...data);
 
-    console.log({ id });
     i = parseInt(id) + 1;
   }
 
