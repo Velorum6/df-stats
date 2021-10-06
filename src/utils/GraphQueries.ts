@@ -1,4 +1,5 @@
-import { getManyGraphEntities } from './GraphUtils';
+import { graphEntitiesId, graphEntitiesSkip } from './GraphUtils';
+import { lastItem } from './Utils';
 
 export type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
 export type Planet = {
@@ -8,10 +9,10 @@ export type Planet = {
   milliEnergyCap: number;
 };
 export type Artifact = { artifactType: string; rarity: string };
-export type Arrival = { id: string };
+export type Arrival = { arrivalId: string };
 
 export const getPlayerPlanets = async (playerAddress: string): Promise<Planet[]> => {
-  return getManyGraphEntities(
+  return graphEntitiesSkip(
     (i) => `{
         planets(where: {owner: "${playerAddress}"},
                 first: 1000,
@@ -24,12 +25,12 @@ export const getPlayerPlanets = async (playerAddress: string): Promise<Planet[]>
           milliEnergyCap
         }
       }`,
-    (respone) => respone.data.planets
+    (response) => response.data.planets
   );
 };
 
 export const getPlayerArtifacts = async (playerAddress: string): Promise<Artifact[]> => {
-  return getManyGraphEntities(
+  return graphEntitiesSkip(
     (i) => `{
           artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
             artifactType
@@ -41,12 +42,16 @@ export const getPlayerArtifacts = async (playerAddress: string): Promise<Artifac
 };
 
 export const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> => {
-  return getManyGraphEntities(
+  return graphEntitiesId(
     (i) => `{
-      arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-        id
-      }
+      arrivals(where: {player: "${playerAddress}",  arrivalId_gt: ${i}}, first: 1000, orderBy: arrivalId) {
+        arrivalId
+      } 
     }`,
-    (response) => response.data.arrivals
+    // TODO: better way of typing this?
+    (response: { data: { arrivals: Arrival[] } }) => ({
+      data: response.data.arrivals,
+      id: lastItem(response.data.arrivals)?.arrivalId,
+    })
   );
 };

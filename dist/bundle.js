@@ -13299,7 +13299,6 @@ const createArtifactsGraph = (artifacts) => {
     const ctx = canvas.getContext('2d');
     if (!ctx)
         throw new Error('Failed to get ctx');
-    debugger;
     console.log({
         data: {
             labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
@@ -13427,8 +13426,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPlayerMoves = exports.getPlayerArtifacts = exports.getPlayerPlanets = void 0;
 const GraphUtils_1 = require("./GraphUtils");
+const Utils_1 = require("./Utils");
 const getPlayerPlanets = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
+    return (0, GraphUtils_1.graphEntitiesSkip)((i) => `{
         planets(where: {owner: "${playerAddress}"},
                 first: 1000,
                 skip: ${i * 1000},
@@ -13439,11 +13439,11 @@ const getPlayerPlanets = (playerAddress) => __awaiter(void 0, void 0, void 0, fu
           planetType,
           milliEnergyCap
         }
-      }`, (respone) => respone.data.planets);
+      }`, (response) => response.data.planets);
 });
 exports.getPlayerPlanets = getPlayerPlanets;
 const getPlayerArtifacts = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
+    return (0, GraphUtils_1.graphEntitiesSkip)((i) => `{
           artifacts(where: {discoverer: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
             artifactType
             rarity
@@ -13452,15 +13452,23 @@ const getPlayerArtifacts = (playerAddress) => __awaiter(void 0, void 0, void 0, 
 });
 exports.getPlayerArtifacts = getPlayerArtifacts;
 const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, function* () {
-    return (0, GraphUtils_1.getManyGraphEntities)((i) => `{
-      arrivals(where: {player: "${playerAddress}"}, first: 1000, skip: ${i * 1000}) {
-        id
-      }
-    }`, (response) => response.data.arrivals);
+    return (0, GraphUtils_1.graphEntitiesId)((i) => `{
+      arrivals(where: {player: "${playerAddress}",  arrivalId_gt: ${i}}, first: 1000, orderBy: arrivalId) {
+        arrivalId
+      } 
+    }`, 
+    // TODO: better way of typing this?
+    (response) => {
+        var _a;
+        return ({
+            data: response.data.arrivals,
+            id: (_a = (0, Utils_1.lastItem)(response.data.arrivals)) === null || _a === void 0 ? void 0 : _a.arrivalId,
+        });
+    });
 });
 exports.getPlayerMoves = getPlayerMoves;
 
-},{"./GraphUtils":4}],4:[function(require,module,exports){
+},{"./GraphUtils":4,"./Utils":5}],4:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13472,7 +13480,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getManyGraphEntities = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
+exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
 exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield fetch(graphApiUrl, {
@@ -13488,7 +13496,8 @@ const getGraphQLData = (graphApiUrl, query) => __awaiter(void 0, void 0, void 0,
 });
 exports.getGraphQLData = getGraphQLData;
 // get around limit of only getting 1000 "things" at a time by sending requests over and over
-const getManyGraphEntities = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
+// this function increases the "skip" by 1000 each iteration, so it only works for <=6000 objects
+const graphEntitiesSkip = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
     const allEntities = [];
     for (let i = 0; i < 6; i++) {
         const graphResponse = yield (0, exports.getGraphQLData)(exports.GRAPH_API_URL, query(i));
@@ -13502,7 +13511,30 @@ const getManyGraphEntities = (query, getDataFromResponse) => __awaiter(void 0, v
     }
     return allEntities;
 });
-exports.getManyGraphEntities = getManyGraphEntities;
+exports.graphEntitiesSkip = graphEntitiesSkip;
+// this function uses id_gt, so it can theoretically get an infinite amount of objects
+// (might need to limit as something like 20 so it doesn't take years)
+const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
+    const allEntities = [];
+    let i = 0;
+    while (true) {
+        console.log(i);
+        console.log(query(i));
+        const graphResponse = yield (0, exports.getGraphQLData)(exports.GRAPH_API_URL, query(i));
+        const entities = getDataFromResponse(graphResponse);
+        if (entities === undefined)
+            break;
+        const { data, id } = entities;
+        debugger;
+        if (data.length === 0 || typeof id !== 'number')
+            break;
+        allEntities.push(...data);
+        console.log({ id });
+        i = parseInt(id) + 1;
+    }
+    return allEntities;
+});
+exports.graphEntitiesId = graphEntitiesId;
 
 },{}],5:[function(require,module,exports){
 "use strict";
@@ -13516,7 +13548,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLeaderBoard = exports.getRank = exports.animateNumber = exports.getRandomActionId = exports.formatNumber = void 0;
+exports.lastItem = exports.getLeaderBoard = exports.getRank = exports.animateNumber = exports.getRandomActionId = exports.formatNumber = void 0;
 const formatNumber = (num, smallDec = 0) => {
     if (num < 1000) {
         if (`${num}` === num.toFixed(0)) {
@@ -13582,5 +13614,9 @@ const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
     return leaderBoard;
 });
 exports.getLeaderBoard = getLeaderBoard;
+const lastItem = (arr) => {
+    return arr[arr.length - 1];
+};
+exports.lastItem = lastItem;
 
 },{}]},{},[2]);

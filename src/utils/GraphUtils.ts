@@ -16,7 +16,8 @@ export const getGraphQLData = async (graphApiUrl: string, query: string) => {
 };
 
 // get around limit of only getting 1000 "things" at a time by sending requests over and over
-export const getManyGraphEntities = async (
+// this function increases the "skip" by 1000 each iteration, so it only works for <=6000 objects
+export const graphEntitiesSkip = async (
   query: (i: number) => string,
   getDataFromResponse: (response: any) => any[] | undefined
 ) => {
@@ -32,5 +33,36 @@ export const getManyGraphEntities = async (
       allEntities.push(...entities);
     }
   }
+  return allEntities;
+};
+
+// this function uses id_gt, so it can theoretically get an infinite amount of objects
+// (might need to limit as something like 20 so it doesn't take years)
+export const graphEntitiesId = async (
+  query: (id: number) => string,
+  getDataFromResponse: (response: any) => { data: any[]; id: string | undefined } | undefined
+) => {
+  const allEntities = [];
+
+  let i = 0;
+  while (true) {
+    console.log(i);
+    console.log(query(i));
+    const graphResponse = await getGraphQLData(GRAPH_API_URL, query(i));
+
+    const entities = getDataFromResponse(graphResponse);
+    if (entities === undefined) break;
+
+    const { data, id } = entities;
+
+    debugger;
+    if (data.length === 0 || typeof id !== 'number') break;
+
+    allEntities.push(...data);
+
+    console.log({ id });
+    i = parseInt(id) + 1;
+  }
+
   return allEntities;
 };

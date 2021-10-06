@@ -75,7 +75,6 @@ const createArtifactsGraph = (artifacts: Artifact[]) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Failed to get ctx');
 
-  debugger;
   console.log({
     data: {
       labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
