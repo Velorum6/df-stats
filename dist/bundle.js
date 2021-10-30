@@ -13461,7 +13461,7 @@ exports.getPlayerMoves = getPlayerMoves;
 const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
     debugger;
     return (0, GraphUtils_1.graphEntitiesId)((i) => `{
-      players(first: 1000, where: {score_gt: ${i}}) {
+      players(first: 1000, where: {initTimestamp_gt: ${i}}) {
           initTimestamp
           id
           score
@@ -13470,7 +13470,7 @@ const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         return ({
             data: response.data.players,
-            id: (_a = (0, Utils_1.lastItem)(response.data.players)) === null || _a === void 0 ? void 0 : _a.score.toString(),
+            id: (_a = (0, Utils_1.lastItem)(response.data.players)) === null || _a === void 0 ? void 0 : _a.initTimestamp.toString(),
         });
     });
 });

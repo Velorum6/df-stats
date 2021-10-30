@@ -61,7 +61,7 @@ export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
   debugger;
   return graphEntitiesId(
     (i) => `{
-      players(first: 1000, where: {score_gt: ${i}}) {
+      players(first: 1000, where: {initTimestamp_gt: ${i}}) {
           initTimestamp
           id
           score
@@ -69,7 +69,7 @@ export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
   }`,
     (response: { data: { players: RankedPlayer[] } }) => ({
       data: response.data.players,
-      id: lastItem(response.data.players)?.score.toString(),
+      id: lastItem(response.data.players)?.initTimestamp.toString(),
     })
   );
 };
