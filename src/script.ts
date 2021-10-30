@@ -2,8 +2,13 @@
 
 import Chart = require('chart.js');
 
-import { animateNumber, formatNumber, getLeaderBoard, getRank } from './utils/Utils';
-import { getPlayerArtifacts, getPlayerMoves, getPlayerPlanets } from './utils/GraphQueries';
+import { animateNumber, formatNumber, getRank } from './utils/Utils';
+import {
+  getPlayerArtifacts,
+  getPlayerMoves,
+  getPlayerPlanets,
+  getLeaderBoard,
+} from './utils/GraphQueries';
 import type { Planet, Artifact } from './utils/GraphQueries';
 
 const createPlanetLevelsGraph = (playerPlanets: Planet[]) => {
@@ -131,8 +136,9 @@ const calculateRank = async (address: string) => {
   const rankContainer = document.getElementById('rank');
   if (!rankContainer) return;
 
-  const leaderBoard = getLeaderBoard();
-  const { rank } = getRank(address, await leaderBoard);
+  debugger;
+  const leaderBoard = await getLeaderBoard();
+  const { rank } = getRank(address, leaderBoard);
 
   rankContainer.innerText = rank !== -1 ? rank.toString() : 'none';
 };

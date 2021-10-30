@@ -53,7 +53,7 @@ export const graphEntitiesId = async (
 
     const { data, id } = entities;
 
-    if (data.length === 0 || typeof id !== 'number') break;
+    if (data.length === 0 || id === undefined || id === null) break;
 
     allEntities.push(...data);
 
@@ -63,15 +63,18 @@ export const graphEntitiesId = async (
   return allEntities;
 };
 
-export const getRoundQueryUrl = () => {
+export const getRound = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const roundParam = searchParams.get('round');
 
-  if (!roundParam) return GRAPH_API_URL;
+  if (!roundParam) return 4;
 
   const parsedRound = parseInt(roundParam);
+  if (!parsedRound || parsedRound < 0 || parsedRound > 4) return 4;
 
-  if (!parsedRound || parsedRound < 0 || parsedRound > 4) return GRAPH_API_URL;
+  return parsedRound;
+};
 
-  return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${parsedRound}`;
+export const getRoundQueryUrl = (round = getRound()) => {
+  return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round}`;
 };

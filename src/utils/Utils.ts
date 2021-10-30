@@ -1,3 +1,5 @@
+import { RankedPlayer } from './GraphQueries';
+
 export const formatNumber = (num: number, smallDec = 0): string => {
   if (num < 1000) {
     if (`${num}` === num.toFixed(0)) {
@@ -52,25 +54,14 @@ export const animateNumber = (
   }, 2500);
 };
 
-type LeaderBoard = { entries: { ethAddress: string; score?: number; twitter?: string }[] };
-export const getRank = (playerAddress: string, leaderBoard: LeaderBoard) => {
-  const sortedLeaderBoard = leaderBoard.entries
-    .filter(
-      (p): p is { ethAddress: string; twitter?: string; score: number } => p.score !== undefined
-    )
-    .sort((a, b) => a.score - b.score)
+export const getRank = (playerAddress: string, leaderBoard: RankedPlayer[]) => {
+  const sortedLeaderBoard = leaderBoard
+    .sort((a, b) => parseFloat(a.score) - parseFloat(b.score))
     .reverse();
 
-  const playerIndex = sortedLeaderBoard.findIndex((p) => p.ethAddress === playerAddress);
+  const playerIndex = sortedLeaderBoard.findIndex((p) => p.id === playerAddress);
 
   return { rank: playerIndex + 1, player: sortedLeaderBoard[playerIndex] };
-};
-
-export const getLeaderBoard = async () => {
-  const response = await fetch('https://api.zkga.me/leaderboard');
-  const leaderBoard: LeaderBoard = await response.json();
-
-  return leaderBoard;
 };
 
 export const lastItem = <T>(arr: T[]): T | undefined => {

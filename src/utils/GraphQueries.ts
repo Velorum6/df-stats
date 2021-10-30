@@ -10,6 +10,7 @@ export type Planet = {
 };
 export type Artifact = { artifactType: string; rarity: string };
 export type Arrival = { arrivalId: string };
+export type RankedPlayer = { initTimestamp: number; score: string; id: string };
 
 export const getPlayerPlanets = async (playerAddress: string): Promise<Planet[]> => {
   return graphEntitiesSkip(
@@ -52,6 +53,23 @@ export const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> 
     (response: { data: { arrivals: Arrival[] } }) => ({
       data: response.data.arrivals,
       id: lastItem(response.data.arrivals)?.arrivalId,
+    })
+  );
+};
+
+export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
+  debugger;
+  return graphEntitiesId(
+    (i) => `{
+      players(first: 1000, where: {score_gt: ${i}}) {
+          initTimestamp
+          id
+          score
+      }
+  }`,
+    (response: { data: { players: RankedPlayer[] } }) => ({
+      data: response.data.players,
+      id: lastItem(response.data.players)?.score.toString(),
     })
   );
 };
