@@ -58,10 +58,9 @@ export const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> 
 };
 
 export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
-  debugger;
   return graphEntitiesId(
     (i) => `{
-      players(first: 1000, where: {initTimestamp_gt: ${i}}) {
+      players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
           initTimestamp
           id
           score
@@ -73,3 +72,6 @@ export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
     })
   );
 };
+
+//  @ts-ignore
+window.getLeaderBoard = getLeaderBoard;

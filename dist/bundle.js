@@ -13346,7 +13346,6 @@ const calculateRank = (address) => __awaiter(void 0, void 0, void 0, function* (
     const rankContainer = document.getElementById('rank');
     if (!rankContainer)
         return;
-    debugger;
     const leaderBoard = yield (0, GraphQueries_1.getLeaderBoard)();
     const { rank } = (0, Utils_1.getRank)(address, leaderBoard);
     rankContainer.innerText = rank !== -1 ? rank.toString() : 'none';
@@ -13459,9 +13458,8 @@ const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, func
 });
 exports.getPlayerMoves = getPlayerMoves;
 const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
-    debugger;
     return (0, GraphUtils_1.graphEntitiesId)((i) => `{
-      players(first: 1000, where: {initTimestamp_gt: ${i}}) {
+      players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
           initTimestamp
           id
           score
@@ -13475,6 +13473,8 @@ const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.getLeaderBoard = getLeaderBoard;
+//  @ts-ignore
+window.getLeaderBoard = exports.getLeaderBoard;
 
 },{"./GraphUtils":4,"./Utils":5}],4:[function(require,module,exports){
 "use strict";

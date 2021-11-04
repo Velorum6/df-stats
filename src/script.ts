@@ -136,7 +136,6 @@ const calculateRank = async (address: string) => {
   const rankContainer = document.getElementById('rank');
   if (!rankContainer) return;
 
-  debugger;
   const leaderBoard = await getLeaderBoard();
   const { rank } = getRank(address, leaderBoard);
 
