@@ -72,6 +72,3 @@ export const getLeaderBoard = async (): Promise<RankedPlayer[]> => {
     })
   );
 };
-
-//  @ts-ignore
-window.getLeaderBoard = getLeaderBoard;
