@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify  ./src/script.ts -p tsify > ./dist/script.js && browserify  ./src/leaderboard.ts -p tsify > ./dist/leaderboard.js",
-    "build:watch": "watchify ./src/script.ts -p tsify -o ./dist/script.js -v && watchify ./src/leaderboard.ts -p tsify -o ./dist/leaderboard.js -v",
+    "build": "browserify  ./src/script.ts -p tsify > ./dist/script.js & browserify  ./src/leaderboard.ts -p tsify > ./dist/leaderboard.js",
+    "build:watch": "watchify ./src/script.ts -p tsify -o ./dist/script.js -v & watchify ./src/leaderboard.ts -p tsify -o ./dist/leaderboard.js -v",
     "format": "prettier --write ."
   },
   "repository": {
