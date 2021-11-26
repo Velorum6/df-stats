@@ -1,6 +1,4 @@
-// The amount of things I had to do to get this npm module working is **too damn high**!
-
-import Chart = require('chart.js');
+declare var Chart: typeof import('chart.js');
 
 import { animateNumber, formatNumber, getRank } from './utils/Utils';
 import {
@@ -144,6 +142,10 @@ const calculateRank = async (address: string) => {
 
 //  Main Script
 
+// Property 'family' does not exist on type
+// '(ctx: ScriptableContext<keyof ChartTypeRegistry>, options: AnyObject) => Partial<FontSpec> | undefined'
+// ts(2339)
+// @ts-ignore ???
 Chart.Chart.defaults.font.family = "'IBM Plex Mono', monospace";
 Chart.Chart.defaults.aspectRatio = 3;
 Chart.Chart.defaults.borderColor = 'rgb(232, 230, 227, 0.1)';
@@ -155,7 +157,7 @@ Chart.Tooltip.positioners.middle = (items, eventPosition) => {
     return Chart.Tooltip.positioners.average(items, eventPosition);
   }
 
-  const el = <Chart.BarElement>(<unknown>items[0].element);
+  const el = <any>items[0].element;
   let xPos = 0;
   let yPos = 0;
 
