@@ -1,83 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="icon.png" type="image/png" />
-    <title>Df Stats</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="icon.png" type="image/png" />
+        <title>Df Stats</title>
 
-    <!-- all my homies hate browserify -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.js"></script>
+        <!-- all my homies hate browserify -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.js"></script>
 
-    <!-- reset.css -->
-    <link rel="stylesheet" href="./dist/reset.css" />
+        <!-- reset.css -->
+        <link rel="stylesheet" href="./dist/reset.css" />
 
-    <!-- minified sass -->
-    <link rel="stylesheet" href="./dist/style.min.css" />
+        <!-- minified sass -->
+        <link rel="stylesheet" href="./dist/style.min.css" />
 
-    <!-- Monospace font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- bundled js -->
-    <script src="./dist/script.js" defer></script>
-  </head>
-  <body>
-    <div id="input-container">
-      <form action="">
-        <input
-          type="text"
-          id="player-input"
-          name="player"
-          autocomplete="off"
-          maxlength="42"
-          pattern="0x[0-9a-zA-Z]+"
-          placeholder="Player address"
+        <!-- Monospace font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap"
+            rel="stylesheet"
         />
-      </form>
-    </div>
-    <div id="player-info">
-      <section class="grid">
-        <div class="grid-item">
-          <span class="title">Total Energy Cap</span>
-          <div class="content" id="total-energy-cap">0</div>
+
+        <!-- bundled js -->
+        <script src="./dist/script.js" defer></script>
+    </head>
+    <body>
+        <div id="input-container">
+            <form action="">
+                <input
+                    type="text"
+                    id="player-input"
+                    name="player"
+                    autocomplete="off"
+                    maxlength="42"
+                    pattern="0x[0-9a-zA-Z]+"
+                    placeholder="Player address"
+                />
+            </form>
         </div>
-        <div class="grid-item">
-          <span class="title"># of artifacts (prospected & found)</span>
-          <div class="content" id="total-artifacts-amount">0</div>
-        </div>
-        <div class="grid-item">
-          <span class="title">Total moves made</span>
-          <div class="content" id="total-moves-made">0</div>
-        </div>
-        <div class="grid-item">
-          <span class="title">Ranking</span>
-          <div class="content" id="rank">0</div>
-        </div>
-      </section>
-      <section id="planets-by-level">
-        <h2>Celestial Bodies by Level</h2>
-        <div class="canvas-container">
-          <canvas></canvas>
-        </div>
-      </section>
-      <section id="artifacts-by-rarity">
-        <h2>Artifacts</h2>
-        <div class="canvas-container">
-          <canvas></canvas>
-        </div>
-      </section>
-      <!-- <section id="planet-types">
+        <div id="player-info">
+            <section class="grid">
+                <div class="grid-item">
+                    <span class="title">Total Energy Cap</span>
+                    <div class="content" id="total-energy-cap">0</div>
+                </div>
+                <div class="grid-item">
+                    <span class="title"># of artifacts (prospected & found)</span>
+                    <div class="content" id="total-artifacts-amount">0</div>
+                </div>
+                <div class="grid-item">
+                    <span class="title">Total moves made</span>
+                    <div class="content" id="total-moves-made">0</div>
+                </div>
+                <div class="grid-item">
+                    <span class="title">Ranking</span>
+                    <div class="content" id="rank">0</div>
+                </div>
+            </section>
+            <section id="planets-by-level">
+                <h2>Celestial Bodies by Level</h2>
+                <div class="canvas-container">
+                    <canvas></canvas>
+                </div>
+            </section>
+            <section id="artifacts-by-rarity">
+                <h2>Artifacts</h2>
+                <div class="canvas-container">
+                    <canvas></canvas>
+                </div>
+            </section>
+            <!-- <section id="planet-types">
         <h3>Planet Types</h3>
         <div class="canvas-container">
           <canvas></canvas>
         </div>
       </section> -->
-    </div>
-  </body>
+        </div>
+    </body>
 </html>
