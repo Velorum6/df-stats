@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify  ./src/script.ts -p tsify > ./dist/script.js && browserify  ./src/leaderboard.ts -p tsify > ./dist/leaderboard.js",
+    "build:watch": "watchify ./src/script.ts -p tsify -o ./dist/script.js -v && watchify ./src/leaderboard.ts -p tsify -o ./dist/leaderboard.js -v",
     "format": "prettier --write ."
   },
   "repository": {
@@ -27,7 +28,8 @@
     "chart.js": "^3.6.0",
     "prettier": "^2.4.1",
     "tsify": "^5.0.4",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "watchify": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^16.9.2"
