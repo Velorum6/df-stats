@@ -1,7 +1,17 @@
+import { Round } from './Utils';
+
 export const GRAPH_API_URL =
     'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 
-export const getGraphQLData = async (query: string, graphApiUrl: string = getRoundQueryUrl()) => {
+export const getGraphQLData = async (query: string, round?: Round) => {
+    let graphApiUrl = GRAPH_API_URL;
+
+    if (round) {
+        let roundQueryUrl = getRoundQueryUrl(round);
+
+        if (roundQueryUrl) graphApiUrl = roundQueryUrl;
+    }
+
     const response = await fetch(graphApiUrl, {
         method: 'POST',
         body: JSON.stringify({ query }),
@@ -40,13 +50,14 @@ export const graphEntitiesSkip = async (
 // (might need to limit as something like 20 so it doesn't take years)
 export const graphEntitiesId = async (
     query: (id: number) => string,
-    getDataFromResponse: (response: any) => { data: any[]; id: string | undefined } | undefined
+    getDataFromResponse: (response: any) => { data: any[]; id: string | undefined } | undefined,
+    round?: Round
 ) => {
     const allEntities = [];
 
     let i = 0;
     while (true) {
-        const graphResponse = await getGraphQLData(query(i));
+        const graphResponse = await getGraphQLData(query(i), round);
 
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined) break;
@@ -75,6 +86,8 @@ export const getRound = () => {
     return parsedRound;
 };
 
-export const getRoundQueryUrl = (round = getRound()) => {
-    return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round}`;
+export const getRoundQueryUrl = (round: Round) => {
+    if (round.major === 6) {
+        return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round.minor}`;
+    }
 };

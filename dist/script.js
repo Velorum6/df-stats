@@ -79,7 +79,8 @@ const createArtifactsGraph = (artifacts) => {
             labels: ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic'],
             datasets: artifactTypes.map((artifactType) => ({
                 label: artifactType,
-                data: artifactRarities.map((r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r).length),
+                data: artifactRarities.map((r) => artifacts.filter((a) => a.artifactType === artifactType && a.rarity === r)
+                    .length),
                 backgroundColor: bgColors[artifactType],
             })),
         },
@@ -120,7 +121,7 @@ const calculateRank = (address) => __awaiter(void 0, void 0, void 0, function* (
     const rankContainer = document.getElementById('rank');
     if (!rankContainer)
         return;
-    const leaderBoard = yield (0, GraphQueries_1.getLeaderBoard)();
+    const leaderBoard = yield (0, GraphQueries_1.getLeaderBoard)({ major: 6, minor: 4 });
     const { rank } = (0, Utils_1.getRank)(address, leaderBoard);
     rankContainer.innerText = rank !== -1 ? rank.toString() : 'none';
 });
@@ -235,20 +236,20 @@ const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, func
     });
 });
 exports.getPlayerMoves = getPlayerMoves;
-const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
+const getLeaderBoard = (round) => __awaiter(void 0, void 0, void 0, function* () {
     return (0, GraphUtils_1.graphEntitiesId)((i) => `{
-      players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
-          initTimestamp
-          id
-          score
-      }
-  }`, (response) => {
+          players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
+              initTimestamp
+              id
+              score
+          }
+      }`, (response) => {
         var _a;
         return ({
             data: response.data.players,
             id: (_a = (0, Utils_1.lastItem)(response.data.players)) === null || _a === void 0 ? void 0 : _a.initTimestamp.toString(),
         });
-    });
+    }, round);
 });
 exports.getLeaderBoard = getLeaderBoard;
 
@@ -266,7 +267,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRoundQueryUrl = exports.getRound = exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
 exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
-const getGraphQLData = (query, graphApiUrl = (0, exports.getRoundQueryUrl)()) => __awaiter(void 0, void 0, void 0, function* () {
+const getGraphQLData = (query, round) => __awaiter(void 0, void 0, void 0, function* () {
+    let graphApiUrl = exports.GRAPH_API_URL;
+    if (round) {
+        let roundQueryUrl = (0, exports.getRoundQueryUrl)(round);
+        if (roundQueryUrl)
+            graphApiUrl = roundQueryUrl;
+    }
     const response = yield fetch(graphApiUrl, {
         method: 'POST',
         body: JSON.stringify({ query }),
@@ -298,11 +305,11 @@ const graphEntitiesSkip = (query, getDataFromResponse) => __awaiter(void 0, void
 exports.graphEntitiesSkip = graphEntitiesSkip;
 // this function uses id_gt, so it can theoretically get an infinite amount of objects
 // (might need to limit as something like 20 so it doesn't take years)
-const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
+const graphEntitiesId = (query, getDataFromResponse, round) => __awaiter(void 0, void 0, void 0, function* () {
     const allEntities = [];
     let i = 0;
     while (true) {
-        const graphResponse = yield (0, exports.getGraphQLData)(query(i));
+        const graphResponse = yield (0, exports.getGraphQLData)(query(i), round);
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined)
             break;
@@ -326,8 +333,10 @@ const getRound = () => {
     return parsedRound;
 };
 exports.getRound = getRound;
-const getRoundQueryUrl = (round = (0, exports.getRound)()) => {
-    return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round}`;
+const getRoundQueryUrl = (round) => {
+    if (round.major === 6) {
+        return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round.minor}`;
+    }
 };
 exports.getRoundQueryUrl = getRoundQueryUrl;
 

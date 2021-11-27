@@ -1,8 +1,163 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const GraphQueries_1 = require("./utils/GraphQueries");
-console.log((0, GraphQueries_1.getLeaderBoard)());
+const createTable = (header, data) => {
+    const table = document.createElement('table');
+    const tableHeader = document.createElement('thead');
+    const titleRow = document.createElement('tr');
+    table.appendChild(tableHeader);
+    tableHeader.appendChild(titleRow);
+    for (const title of header) {
+        const tableCell = document.createElement('th');
+        tableCell.innerText = title;
+        titleRow.appendChild(tableCell);
+    }
+    const tableBody = document.createElement('tbody');
+    for (const row of data) {
+        const tableRow = document.createElement('tr');
+        tableBody.appendChild(tableRow);
+        row.forEach((i) => {
+            const tableCell = document.createElement('th');
+            tableCell.append(i);
+            tableRow.appendChild(tableCell);
+        });
+    }
+    table.appendChild(tableHeader);
+    table.appendChild(tableBody);
+    return table;
+};
+const getRoundFromUrl = ({ defaultRound }) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roundParam = urlParams.get('round');
+    if (roundParam) {
+        // turns "6.4" into ["6", 4]
+        const roundVersionParts = roundParam.split('.').slice(0, 2);
+        // assumes that by default you want round 4
+        // so ?round=3 turns into v4.3
+        if (roundVersionParts.length === 1) {
+            roundVersionParts.unshift('4');
+        }
+        const version = roundVersionParts.map((p) => parseInt(p));
+        // if every single part of the version is a valid number...
+        if (version.every((v) => !isNaN(v))) {
+            const [major, minor] = version;
+            // set the round to the specified version
+            return { major, minor };
+        }
+    }
+    return defaultRound;
+};
+const loadingAnimation = (container) => {
+    function* nextFrame() {
+        let chars = '╱─╲│╱─';
+        for (let i = 0;; i++) {
+            yield chars[i % chars.length];
+        }
+    }
+    const animation = nextFrame();
+    const animationFrame = () => {
+        const frame = 'Loading ' + animation.next().value;
+        container.innerText = frame;
+    };
+    const interval = window.setInterval(() => {
+        animationFrame();
+    }, 200);
+    return {
+        clearAnimation: () => {
+            window.clearInterval(interval);
+            container.innerText = '';
+        },
+    };
+};
+// https://www.sitepoint.com/cache-fetched-ajax-requests/
+const cachedFetch = (url, key, options) => __awaiter(void 0, void 0, void 0, function* () {
+    // Use the URL as the cache key to sessionStorage
+    // if `key` is not provided, use the url as a key
+    let cacheKey = key ? key : url;
+    let cached = sessionStorage.getItem(cacheKey);
+    if (cached !== null) {
+        // it was in sessionStorage! Yay!
+        let response = new Response(new Blob([cached]));
+        return Promise.resolve(response);
+    }
+    const response = yield fetch(url, options);
+    // let's only store in cache if the content-type is
+    // JSON or something non-binary
+    if (response.status === 200) {
+        let ct = response.headers.get('Content-Type');
+        if (ct && (ct.match(/application\/json/i) || ct.match(/text\//i))) {
+            sessionStorage.setItem(cacheKey, yield response.clone().text());
+        }
+    }
+    return response;
+});
+const getAllTwitters = () => __awaiter(void 0, void 0, void 0, function* () {
+    let response = yield cachedFetch('https://api.zkga.me/twitter/all-twitters', 'twitter');
+    return yield response.json();
+});
+const addressTwitter = (allTwitters, address) => {
+    if (allTwitters.hasOwnProperty(address)) {
+        const twitter = allTwitters[address];
+        const twitterElement = document.createElement('a');
+        twitterElement.href = `https://twitter.com/${twitter}`;
+        twitterElement.innerText = '@' + allTwitters[address];
+        return twitterElement;
+    }
+    else {
+        return address;
+    }
+};
+const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    const mainElement = document.getElementsByTagName('main')[0];
+    const { clearAnimation } = loadingAnimation(mainElement);
+    let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
+    // cache leaderboards
+    const stringifiedVersion = `${round.major}.${round.minor}`;
+    const cachedLeaderboard = sessionStorage.getItem(stringifiedVersion);
+    let leaderBoard;
+    if (cachedLeaderboard) {
+        // success! found a cached leaderboard
+        leaderBoard = JSON.parse(cachedLeaderboard);
+    }
+    else {
+        // requesting the leaderboard for the 1st time and caching it
+        leaderBoard = (yield (0, GraphQueries_1.getLeaderBoard)(round))
+            .sort((a, b) => parseInt(a.score) - parseInt(b.score))
+            .reverse()
+            .map((p, idx) => [idx.toString() + '.', p.id, parseInt(p.score).toLocaleString()]);
+        try {
+            sessionStorage.setItem(stringifiedVersion, JSON.stringify(leaderBoard));
+        }
+        catch (e) {
+            // possibly exceeded storage limits
+            console.error(`could not cache leaderboard: ${e}; version=\`${stringifiedVersion}\``);
+        }
+    }
+    let table;
+    try {
+        const allTwitters = yield getAllTwitters();
+        table = createTable(['place', 'player', 'score'], leaderBoard.map(([place, id, score]) => [place, addressTwitter(allTwitters, id), score]));
+    }
+    catch (e) {
+        console.error('Error when creating table');
+        // cached leaderboard is possibly corrupted, try to clear it
+        sessionStorage.clear();
+        return;
+    }
+    clearAnimation();
+    mainElement.appendChild(table);
+});
+main();
 
 },{"./utils/GraphQueries":2}],2:[function(require,module,exports){
 "use strict";
@@ -59,20 +214,20 @@ const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, func
     });
 });
 exports.getPlayerMoves = getPlayerMoves;
-const getLeaderBoard = () => __awaiter(void 0, void 0, void 0, function* () {
+const getLeaderBoard = (round) => __awaiter(void 0, void 0, void 0, function* () {
     return (0, GraphUtils_1.graphEntitiesId)((i) => `{
-      players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
-          initTimestamp
-          id
-          score
-      }
-  }`, (response) => {
+          players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
+              initTimestamp
+              id
+              score
+          }
+      }`, (response) => {
         var _a;
         return ({
             data: response.data.players,
             id: (_a = (0, Utils_1.lastItem)(response.data.players)) === null || _a === void 0 ? void 0 : _a.initTimestamp.toString(),
         });
-    });
+    }, round);
 });
 exports.getLeaderBoard = getLeaderBoard;
 
@@ -90,7 +245,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRoundQueryUrl = exports.getRound = exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
 exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
-const getGraphQLData = (query, graphApiUrl = (0, exports.getRoundQueryUrl)()) => __awaiter(void 0, void 0, void 0, function* () {
+const getGraphQLData = (query, round) => __awaiter(void 0, void 0, void 0, function* () {
+    let graphApiUrl = exports.GRAPH_API_URL;
+    if (round) {
+        let roundQueryUrl = (0, exports.getRoundQueryUrl)(round);
+        if (roundQueryUrl)
+            graphApiUrl = roundQueryUrl;
+    }
     const response = yield fetch(graphApiUrl, {
         method: 'POST',
         body: JSON.stringify({ query }),
@@ -122,11 +283,11 @@ const graphEntitiesSkip = (query, getDataFromResponse) => __awaiter(void 0, void
 exports.graphEntitiesSkip = graphEntitiesSkip;
 // this function uses id_gt, so it can theoretically get an infinite amount of objects
 // (might need to limit as something like 20 so it doesn't take years)
-const graphEntitiesId = (query, getDataFromResponse) => __awaiter(void 0, void 0, void 0, function* () {
+const graphEntitiesId = (query, getDataFromResponse, round) => __awaiter(void 0, void 0, void 0, function* () {
     const allEntities = [];
     let i = 0;
     while (true) {
-        const graphResponse = yield (0, exports.getGraphQLData)(query(i));
+        const graphResponse = yield (0, exports.getGraphQLData)(query(i), round);
         const entities = getDataFromResponse(graphResponse);
         if (entities === undefined)
             break;
@@ -150,8 +311,10 @@ const getRound = () => {
     return parsedRound;
 };
 exports.getRound = getRound;
-const getRoundQueryUrl = (round = (0, exports.getRound)()) => {
-    return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round}`;
+const getRoundQueryUrl = (round) => {
+    if (round.major === 6) {
+        return `https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-${round.minor}`;
+    }
 };
 exports.getRoundQueryUrl = getRoundQueryUrl;
 

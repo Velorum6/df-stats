@@ -67,3 +67,8 @@ export const getRank = (playerAddress: string, leaderBoard: RankedPlayer[]) => {
 export const lastItem = <T>(arr: T[]): T | undefined => {
     return arr[arr.length - 1];
 };
+
+export type Round = {
+    major: number;
+    minor: number;
+};
