@@ -44,8 +44,14 @@ div.error {
 }
 
 main {
+    width: 400px;
+    margin: auto;
     margin: auto;
     color: white;
+}
+
+div.loading {
+    text-align: center;
 }
 
 table {

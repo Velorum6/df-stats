@@ -165,7 +165,8 @@ const handleError = (message: string, error?: Error) => {
 const main = async () => {
     const mainElement = document.getElementsByTagName('main')[0];
 
-    const loadingContainer = document.createElement('span');
+    const loadingContainer = document.createElement('div');
+    loadingContainer.classList.add('loading');
     mainElement.appendChild(loadingContainer);
     const { clearAnimation } = loadingAnimation(loadingContainer);
     let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
