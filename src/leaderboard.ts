@@ -138,22 +138,53 @@ const addressTwitter = (allTwitters: Object & { [key: string]: string }, address
     }
 };
 
+const handleError = (message: string, error?: Error) => {
+    const errorContainer = document.createElement('div');
+    errorContainer.classList.add('error');
+
+    const errMessage = document.createElement('p');
+    errMessage.classList.add('error-message');
+
+    errMessage.innerText = message;
+
+    errorContainer.appendChild(errMessage);
+
+    if (error) {
+        const errDetails = document.createElement('p');
+        errDetails.classList.add('error-details');
+
+        errDetails.innerText = `${error.name}: ${error.message}`;
+        errorContainer.appendChild(errDetails);
+    }
+
+    document.getElementsByTagName('main')[0].appendChild(errorContainer);
+};
+
 const main = async () => {
     const mainElement = document.getElementsByTagName('main')[0];
 
-    const { clearAnimation } = loadingAnimation(mainElement);
+    const loadingContainer = document.createElement('span');
+    mainElement.appendChild(loadingContainer);
+    const { clearAnimation } = loadingAnimation(loadingContainer);
     let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
 
     // cache leaderboards
     const stringifiedVersion = `${round.major}.${round.minor}`;
-    const cachedLeaderboard = sessionStorage.getItem(stringifiedVersion);
+    let cachedLeaderboard = sessionStorage.getItem(stringifiedVersion);
 
-    let leaderBoard: [string, string, string][];
+    let leaderBoard: [string, string, string][] = [];
 
     if (cachedLeaderboard) {
         // success! found a cached leaderboard
-        leaderBoard = JSON.parse(cachedLeaderboard);
-    } else {
+        try {
+            leaderBoard = JSON.parse(cachedLeaderboard);
+        } catch (e) {
+            console.warn('ignoring cache bc of', e);
+            cachedLeaderboard = null;
+            sessionStorage.clear();
+        }
+    }
+    if (!cachedLeaderboard) {
         // requesting the leaderboard for the 1st time and caching it
         leaderBoard = (await getLeaderBoard(round))
             .sort((a, b) => parseInt(a.score) - parseInt(b.score))
@@ -164,7 +195,7 @@ const main = async () => {
             sessionStorage.setItem(stringifiedVersion, JSON.stringify(leaderBoard));
         } catch (e) {
             // possibly exceeded storage limits
-            console.error(`could not cache leaderboard: ${e}; version=\`${stringifiedVersion}\``);
+            console.warn(`could not cache leaderboard: ${e}; version=\`${stringifiedVersion}\``);
         }
     }
 
@@ -178,12 +209,18 @@ const main = async () => {
     } catch (e) {
         console.error('Error when creating table');
         // cached leaderboard is possibly corrupted, try to clear it
+        handleError('Leaderboard is possibly corrupted. reload and try again!', e as Error);
         sessionStorage.clear();
         return;
+    } finally {
+        clearAnimation();
     }
 
-    clearAnimation();
     mainElement.appendChild(table);
 };
 
-main();
+main().catch((e) => {
+    // if something reaches to here, there's nothing that can be done
+    handleError(`error: ${e}\n\ncheck console for more details`);
+    console.error(e);
+});
