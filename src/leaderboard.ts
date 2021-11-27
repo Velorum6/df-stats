@@ -131,6 +131,8 @@ const addressTwitter = (allTwitters: Object & { [key: string]: string }, address
         const twitterElement = document.createElement('a');
         twitterElement.href = `https://twitter.com/${twitter}`;
         twitterElement.innerText = '@' + allTwitters[address];
+        twitterElement.target = '_blank';
+        twitterElement.rel = 'noreferrer noopener';
 
         return twitterElement;
     } else {
