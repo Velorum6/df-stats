@@ -173,6 +173,9 @@ const main = async () => {
 
     // cache leaderboards
     const stringifiedVersion = `${round.major}.${round.minor}`;
+
+    (<HTMLInputElement>document.querySelector('input#round-name')).value = stringifiedVersion;
+
     let cachedLeaderboard = sessionStorage.getItem(stringifiedVersion);
 
     let leaderBoard: [string, string, string][] = [];

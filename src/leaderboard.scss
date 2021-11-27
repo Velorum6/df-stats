@@ -15,6 +15,28 @@ div.error {
     padding: 10px;
 }
 
+#round-input-container {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 20px 5px;
+
+    input {
+        background-color: transparent;
+        font: inherit;
+        color: white;
+        padding: 4px;
+
+        border: 0;
+        //? Accessibility?
+        outline: 0;
+        border-bottom: 1px solid rgb(187, 187, 187);
+
+        width: 100px;
+
+        text-align: center;
+    }
+}
+
 // average open tabs while making this: 15
 
 //! START TABLE STYLES
@@ -44,7 +66,7 @@ div.error {
 }
 
 main {
-    width: 400px;
+    max-width: 400px;
     margin: auto;
     margin: auto;
     color: white;
@@ -90,7 +112,7 @@ a:visited {
     }
 }
 
-@media only screen and (max-width: 370px) {
+@media only screen and (max-width: 400px) {
     tr > th:nth-child(2) {
         max-width: 10ch;
         overflow: hidden;

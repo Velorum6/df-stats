@@ -143,6 +143,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
     // cache leaderboards
     const stringifiedVersion = `${round.major}.${round.minor}`;
+    document.querySelector('input#round-name').value = stringifiedVersion;
     let cachedLeaderboard = sessionStorage.getItem(stringifiedVersion);
     let leaderBoard = [];
     if (cachedLeaderboard) {
