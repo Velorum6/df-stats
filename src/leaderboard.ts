@@ -207,7 +207,7 @@ const main = async () => {
         leaderBoard = (await getLeaderBoard(round))
             .sort((a, b) => parseInt(a.score) - parseInt(b.score))
             .reverse()
-            .map((p, idx) => [idx.toString() + '.', p.id, parseInt(p.score).toLocaleString()]);
+            .map((p, idx) => [`${idx + 1}.`, p.id, parseInt(p.score).toLocaleString()]);
 
         try {
             sessionStorage.setItem(stringifiedVersion, JSON.stringify(leaderBoard));
