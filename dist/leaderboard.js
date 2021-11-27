@@ -45,7 +45,7 @@ const getRoundFromUrl = ({ defaultRound }) => {
         // assumes that by default you want round 4
         // so ?round=3 turns into v4.3
         if (roundVersionParts.length === 1) {
-            roundVersionParts.unshift('4');
+            roundVersionParts.unshift('6');
         }
         const version = roundVersionParts.map((p) => parseInt(p));
         // if every single part of the version is a valid number...
