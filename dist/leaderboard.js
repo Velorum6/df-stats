@@ -141,6 +141,16 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     mainElement.appendChild(loadingContainer);
     const { clearAnimation } = loadingAnimation(loadingContainer);
     let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
+    if ((round.major === 6 && round.minor === 1) || round.major < 6) {
+        handleError(`error: round ${round.major}.${round.minor} is not supported`);
+        clearAnimation();
+        return;
+    }
+    if ((round.major === 6 && round.minor > 4) || round.major > 6) {
+        handleError(`sorry, you will need a time machine to view that`);
+        clearAnimation();
+        return;
+    }
     // cache leaderboards
     const stringifiedVersion = `${round.major}.${round.minor}`;
     document.querySelector('input#round-name').value = stringifiedVersion;
