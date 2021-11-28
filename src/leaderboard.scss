@@ -149,11 +149,11 @@ $colorOffset: 0;
 
 @each $color in $colors {
     $colorI: $colorI + 1;
-    $colorAmt: pow(2, $colorI);
+    $colorAmt: pow(2, $colorI - 1) - 1;
     $colorOffset: pow(2, $colorI - 1);
 
     @for $i from $colorOffset through $colorOffset + $colorAmt {
-        tbody > tr:nth-child(#{$i}) /* > th:nth-child(2) */ {
+        tbody > tr:nth-child(#{$i}) {
             color: $color;
         }
     }
