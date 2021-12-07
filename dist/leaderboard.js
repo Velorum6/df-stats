@@ -135,6 +135,11 @@ const handleError = (message, error) => {
     document.getElementsByTagName('main')[0].appendChild(errorContainer);
 };
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    // easier to test
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        sessionStorage.clear();
+        localStorage.clear();
+    }
     const mainElement = document.getElementsByTagName('main')[0];
     const loadingContainer = document.createElement('div');
     loadingContainer.classList.add('loading');
@@ -260,13 +265,19 @@ const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, func
 });
 exports.getPlayerMoves = getPlayerMoves;
 const getLeaderBoard = (round) => __awaiter(void 0, void 0, void 0, function* () {
-    return (0, GraphUtils_1.graphEntitiesId)((i) => `{
-          players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
-              initTimestamp
-              id
-              score
-          }
-      }`, (response) => {
+    return (0, GraphUtils_1.graphEntitiesId)((i) => `\
+{
+  players(first: 1000,
+          where: {initTimestamp_gt: ${i}},
+          orderBy: initTimestamp,
+          block: {number: ${(0, GraphUtils_1.endingBlockNumber)(round)}}
+          )
+         {
+      initTimestamp
+      id
+      score
+  }
+}`, (response) => {
         var _a;
         return ({
             data: response.data.players,
@@ -288,7 +299,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRoundQueryUrl = exports.getRound = exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
+exports.endingBlockNumber = exports.getRoundQueryUrl = exports.getRound = exports.graphEntitiesId = exports.graphEntitiesSkip = exports.getGraphQLData = exports.GRAPH_API_URL = void 0;
 exports.GRAPH_API_URL = 'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-4';
 const getGraphQLData = (query, round) => __awaiter(void 0, void 0, void 0, function* () {
     let graphApiUrl = exports.GRAPH_API_URL;
@@ -362,6 +373,22 @@ const getRoundQueryUrl = (round) => {
     }
 };
 exports.getRoundQueryUrl = getRoundQueryUrl;
+const endingBlockNumber = (round) => {
+    // dates taken from [darkforest.toml](https://github.com/darkforest-eth/eth/blob/150ac06ab14556a0bdb426707e70ef789152fb3a/darkforest.toml)
+    //* converted to blocks using
+    //* https://blockscout.com/xdai/mainnet/api?module=block&action=getblocknobytime&timestamp=1625716800&closest=after
+    // type annotation bc typescript thinks "string" cannot index "{6.1: string, 6.2: string ...}"
+    const roundBlocks = {
+        // currently don't support 6.1 but whatever
+        '6.1': '16443851',
+        '6.2': '16963260',
+        '6.3': '17708309',
+        '6.4': '18418331',
+        '6.5': '00000000',
+    };
+    return roundBlocks[`${round.major}.${round.minor}`];
+};
+exports.endingBlockNumber = endingBlockNumber;
 
 },{}],4:[function(require,module,exports){
 "use strict";

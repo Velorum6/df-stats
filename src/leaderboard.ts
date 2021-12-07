@@ -163,6 +163,12 @@ const handleError = (message: string, error?: Error) => {
 };
 
 const main = async () => {
+    // easier to test
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        sessionStorage.clear();
+        localStorage.clear();
+    }
+
     const mainElement = document.getElementsByTagName('main')[0];
 
     const loadingContainer = document.createElement('div');

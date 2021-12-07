@@ -1,4 +1,4 @@
-import { graphEntitiesId, graphEntitiesSkip } from './GraphUtils';
+import { endingBlockNumber, graphEntitiesId, graphEntitiesSkip } from './GraphUtils';
 import { lastItem, Round } from './Utils';
 
 export type PlanetType = 'PLANET' | 'SILVER_MINE' | 'RUINS' | 'TRADING_POST' | 'SILVER_BANK';
@@ -59,13 +59,19 @@ export const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> 
 
 export const getLeaderBoard = async (round: Round): Promise<RankedPlayer[]> => {
     return graphEntitiesId(
-        (i) => `{
-          players(first: 1000, where: {initTimestamp_gt: ${i}}, orderBy: initTimestamp) {
-              initTimestamp
-              id
-              score
-          }
-      }`,
+        (i) => `\
+{
+  players(first: 1000,
+          where: {initTimestamp_gt: ${i}},
+          orderBy: initTimestamp,
+          block: {number: ${endingBlockNumber(round)}}
+          )
+         {
+      initTimestamp
+      id
+      score
+  }
+}`,
         (response: { data: { players: RankedPlayer[] } }) => ({
             data: response.data.players,
             id: lastItem(response.data.players)?.initTimestamp.toString(),
