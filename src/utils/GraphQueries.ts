@@ -57,7 +57,37 @@ export const getPlayerMoves = async (playerAddress: string): Promise<Arrival[]> 
     );
 };
 
+type v6r1Player = { initTimestamp: number; id: string; milliWithdrawnSilver: string };
+
 export const getLeaderBoard = async (round: Round): Promise<RankedPlayer[]> => {
+    if (round.major === 6 && round.minor === 1) {
+        return graphEntitiesId(
+            (i) => `\
+    {
+      players(first: 1000,
+              where: {initTimestamp_gt: ${i}},
+              orderBy: initTimestamp,
+              block: {number: ${endingBlockNumber(round)}}
+              )
+             {
+          initTimestamp
+          id
+          milliWithdrawnSilver
+      }
+    }`,
+            (response: { data: { players: v6r1Player[] } }) => ({
+                data: response.data.players.map((p) => {
+                    Object.defineProperty(p, 'score', {
+                        value: parseInt(p.milliWithdrawnSilver) / 1000,
+                    });
+                    return p;
+                }),
+                id: lastItem(response.data.players)?.initTimestamp.toString(),
+            }),
+            round
+        );
+    }
+
     return graphEntitiesId(
         (i) => `\
 {

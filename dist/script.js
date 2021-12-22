@@ -237,6 +237,32 @@ const getPlayerMoves = (playerAddress) => __awaiter(void 0, void 0, void 0, func
 });
 exports.getPlayerMoves = getPlayerMoves;
 const getLeaderBoard = (round) => __awaiter(void 0, void 0, void 0, function* () {
+    if (round.major === 6 && round.minor === 1) {
+        return (0, GraphUtils_1.graphEntitiesId)((i) => `\
+    {
+      players(first: 1000,
+              where: {initTimestamp_gt: ${i}},
+              orderBy: initTimestamp,
+              block: {number: ${(0, GraphUtils_1.endingBlockNumber)(round)}}
+              )
+             {
+          initTimestamp
+          id
+          milliWithdrawnSilver
+      }
+    }`, (response) => {
+            var _a;
+            return ({
+                data: response.data.players.map((p) => {
+                    Object.defineProperty(p, 'score', {
+                        value: parseInt(p.milliWithdrawnSilver) / 1000,
+                    });
+                    return p;
+                }),
+                id: (_a = (0, Utils_1.lastItem)(response.data.players)) === null || _a === void 0 ? void 0 : _a.initTimestamp.toString(),
+            });
+        }, round);
+    }
     return (0, GraphUtils_1.graphEntitiesId)((i) => `\
 {
   players(first: 1000,
