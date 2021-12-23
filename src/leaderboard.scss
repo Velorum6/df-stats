@@ -67,7 +67,7 @@ div.error {
 }
 
 main {
-    max-width: 400px;
+    max-width: 640px;
     margin: auto;
     margin: auto;
     color: white;
@@ -98,9 +98,7 @@ tr > th:nth-child(2n + 1) {
 
 tr > th:nth-child(2) {
     text-align: left;
-    max-width: 20ch;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: var(--tableCellPadding) calc(var(--tableCellPadding) + 10px);
 }
 
 a,
@@ -110,6 +108,15 @@ a:visited {
 
     &:hover {
         text-decoration: underline;
+    }
+}
+
+@media only screen and (max-width: 640px) {
+    tr > th:nth-child(2) {
+        text-align: left;
+        max-width: 20ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
