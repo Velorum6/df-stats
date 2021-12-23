@@ -177,7 +177,7 @@ const main = async () => {
     const { clearAnimation } = loadingAnimation(loadingContainer);
     let round = getRoundFromUrl({ defaultRound: { major: 6, minor: 4 } });
 
-    if (round.major < 6) {
+    if ((round.major === 6 && round.minor === 3) || round.major < 6) {
         handleError(`error: round ${round.major}.${round.minor} is not supported`);
         clearAnimation();
         return;
