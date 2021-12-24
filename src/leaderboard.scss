@@ -101,6 +101,10 @@ tr > th:nth-child(2) {
     padding: var(--tableCellPadding) calc(var(--tableCellPadding) + 10px);
 }
 
+tbody tr > th:nth-child(1)::after {
+    content: '.';
+}
+
 a,
 a:visited {
     color: inherit;

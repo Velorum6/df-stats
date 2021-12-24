@@ -36,6 +36,13 @@ const createTable = (header, data) => {
     table.appendChild(tableBody);
     return table;
 };
+const linkableText = (text) => {
+    const link = document.createElement('a');
+    link.innerText = text;
+    link.href = `#${text}`;
+    link.id = text;
+    return link;
+};
 const getRoundFromUrl = ({ defaultRound }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const roundParam = urlParams.get('round');
@@ -177,7 +184,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         leaderBoard = (yield (0, GraphQueries_1.getLeaderBoard)(round))
             .sort((a, b) => parseInt(a.score) - parseInt(b.score))
             .reverse()
-            .map((p, idx) => [`${idx + 1}.`, p.id, parseInt(p.score).toLocaleString()]);
+            .map((p, idx) => [`${idx + 1}`, p.id, parseInt(p.score).toLocaleString()]);
         try {
             sessionStorage.setItem(stringifiedVersion, JSON.stringify(leaderBoard));
         }
@@ -189,7 +196,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     let table;
     try {
         const allTwitters = yield getAllTwitters();
-        table = createTable(['place', 'player', 'score'], leaderBoard.map(([place, id, score]) => [place, addressTwitter(allTwitters, id), score]));
+        table = createTable(['place', 'player', 'score'], leaderBoard.map(([place, id, score]) => [
+            linkableText(place),
+            addressTwitter(allTwitters, id),
+            score,
+        ]));
     }
     catch (e) {
         console.error('Error when creating table');

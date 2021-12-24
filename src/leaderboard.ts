@@ -37,6 +37,15 @@ const createTable = (header: string[], data: (HTMLElement | string)[][]) => {
     return table;
 };
 
+const linkableText = (text: string) => {
+    const link = document.createElement('a');
+    link.innerText = text;
+    link.href = `#${text}`;
+    link.id = text;
+
+    return link;
+};
+
 const getRoundFromUrl = ({ defaultRound }: { defaultRound: Round }): Round => {
     const urlParams = new URLSearchParams(window.location.search);
     const roundParam = urlParams.get('round');
@@ -213,7 +222,7 @@ const main = async () => {
         leaderBoard = (await getLeaderBoard(round))
             .sort((a, b) => parseInt(a.score) - parseInt(b.score))
             .reverse()
-            .map((p, idx) => [`${idx + 1}.`, p.id, parseInt(p.score).toLocaleString()]);
+            .map((p, idx) => [`${idx + 1}`, p.id, parseInt(p.score).toLocaleString()]);
 
         try {
             sessionStorage.setItem(stringifiedVersion, JSON.stringify(leaderBoard));
@@ -228,7 +237,11 @@ const main = async () => {
         const allTwitters = await getAllTwitters();
         table = createTable(
             ['place', 'player', 'score'],
-            leaderBoard.map(([place, id, score]) => [place, addressTwitter(allTwitters, id), score])
+            leaderBoard.map(([place, id, score]) => [
+                linkableText(place),
+                addressTwitter(allTwitters, id),
+                score,
+            ])
         );
     } catch (e) {
         console.error('Error when creating table');
