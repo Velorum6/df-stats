@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,IAAI,AAAC,CACD,WAAW,CAAE,SAAS,CACzB",
+    "sources": [
+        "../src/spy.scss"
+    ],
+    "names": [],
+    "file": "spy.min.css"
+}
