@@ -105,9 +105,26 @@ const lobbiesTable = (lobbies: Arena[]) => {
             sortedLobbies.map((l) => {
                 const creationDate = new Date(l.creationTime * 1000);
 
-                const msDifference = new Date().getTime() - creationDate.getTime();
+                const spanContainer = document.createElement('span');
 
-                return Math.round(msDifference / 1000).toString();
+                const update = () => {
+                    const sDifference = (new Date().getTime() - creationDate.getTime()) / 1000;
+
+                    let formatted = '';
+                    if (sDifference <= 3600) {
+                        formatted = new Date(sDifference * 1000).toISOString().substring(14, 19);
+                    } else {
+                        formatted = new Date(sDifference * 1000).toISOString().substring(11, 19);
+                    }
+
+                    spanContainer.innerText = formatted;
+                };
+
+                window.setInterval(update, 1000);
+
+                update();
+
+                return spanContainer;
             }),
         ]
     );
