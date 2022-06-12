@@ -104,7 +104,7 @@ const lobbiesTable = (lobbies: Arena[], twitters: { [key: string]: string }) => 
     const sortedLobbies = lobbies.sort((a, b) => a.startTime - b.startTime).reverse();
 
     const table = createTable(
-        ['player', 'lobby', 'creationTime'],
+        ['player', 'lobby', 'start'],
         [
             sortedLobbies.map((l) => {
                 const address = l.firstMover.id.split('-')[1];

@@ -77,7 +77,7 @@ const getAllTwitters = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const lobbiesTable = (lobbies, twitters) => {
     const sortedLobbies = lobbies.sort((a, b) => a.startTime - b.startTime).reverse();
-    const table = createTable(['player', 'lobby', 'creationTime'], [
+    const table = createTable(['player', 'lobby', 'start'], [
         sortedLobbies.map((l) => {
             const address = l.firstMover.id.split('-')[1];
             let formatted = '';
