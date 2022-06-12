@@ -93,6 +93,8 @@ const lobbiesTable = (lobbies, twitters) => {
             const link = document.createElement('a');
             link.innerText = l.id;
             link.href = `https://arena.dfdao.xyz/play/${l.id}`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
             return link;
         }),
         sortedLobbies.map((l) => {
