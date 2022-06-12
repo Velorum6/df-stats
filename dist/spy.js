@@ -75,7 +75,12 @@ const lobbiesTable = (lobbies) => {
     const sortedLobbies = lobbies.sort((a, b) => a.creationTime - b.creationTime).reverse();
     const table = createTable(['player', 'lobby', 'creationTime'], [
         sortedLobbies.map((l) => l.firstMover.id.split('-')[1]),
-        sortedLobbies.map((l) => l.id),
+        sortedLobbies.map((l) => {
+            const link = document.createElement('a');
+            link.innerText = l.id;
+            link.href = `https://arena.dfdao.xyz/play/${l.id}`;
+            return link;
+        }),
         sortedLobbies.map((l) => {
             const creationDate = new Date(l.creationTime * 1000);
             const spanContainer = document.createElement('span');
@@ -83,10 +88,17 @@ const lobbiesTable = (lobbies) => {
                 const sDifference = (new Date().getTime() - creationDate.getTime()) / 1000;
                 let formatted = '';
                 if (sDifference <= 3600) {
-                    formatted = new Date(sDifference * 1000).toISOString().substring(14, 19);
+                    const minutes = Math.floor(sDifference / 60);
+                    const seconds = Math.floor(sDifference % 60);
+                    formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 }
                 else {
-                    formatted = new Date(sDifference * 1000).toISOString().substring(11, 19);
+                    const hours = Math.floor(sDifference / 3600);
+                    const minutes = Math.floor((sDifference % 3600) / 60);
+                    const seconds = Math.floor(sDifference % 60);
+                    formatted = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+                        .toString()
+                        .padStart(2, '0')}`;
                 }
                 spanContainer.innerText = formatted;
             };
