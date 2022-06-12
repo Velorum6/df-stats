@@ -1,6 +1,6 @@
 {
     "version": 3,
-    "mappings": "AAAA,AAAA,IAAI,AAAC,CACD,WAAW,CAAE,SAAS,CACzB",
+    "mappings": "AAAA,AAAA,IAAI,AAAC,CACD,WAAW,CAAE,SAAS,CACzB,AAED,AAAA,EAAE,CAAG,EAAE,AAAA,YAAY,AAAC,CAChB,UAAU,CAAE,IAAI,CACnB,AAED,AAAA,KAAK,CAAC,EAAE,AAAC,CACL,cAAc,CAAE,IAAI,CACvB",
     "sources": [
         "../src/spy.scss"
     ],

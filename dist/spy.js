@@ -58,7 +58,7 @@ const getIncompleteLobbies = () => __awaiter(void 0, void 0, void 0, function* (
           id
         },
         id
-        creationTime
+        startTime
       }
     }`;
     const response = yield getGraphQLData(query, 'https://graph-optimism.gnosischain.com/subgraphs/name/dfdao/arena-v1');
@@ -71,10 +71,24 @@ const getIncompleteLobbies = () => __awaiter(void 0, void 0, void 0, function* (
     }
     return arenas;
 });
-const lobbiesTable = (lobbies) => {
-    const sortedLobbies = lobbies.sort((a, b) => a.creationTime - b.creationTime).reverse();
+const getAllTwitters = () => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch('https://api.zkga.me/twitter/all-twitters');
+    return res.json();
+});
+const lobbiesTable = (lobbies, twitters) => {
+    const sortedLobbies = lobbies.sort((a, b) => a.startTime - b.startTime).reverse();
     const table = createTable(['player', 'lobby', 'creationTime'], [
-        sortedLobbies.map((l) => l.firstMover.id.split('-')[1]),
+        sortedLobbies.map((l) => {
+            const address = l.firstMover.id.split('-')[1];
+            let formatted = '';
+            if (address in twitters) {
+                formatted = `${address} (@${twitters[address]})`;
+            }
+            else {
+                formatted = `${address}`;
+            }
+            return formatted;
+        }),
         sortedLobbies.map((l) => {
             const link = document.createElement('a');
             link.innerText = l.id;
@@ -82,7 +96,7 @@ const lobbiesTable = (lobbies) => {
             return link;
         }),
         sortedLobbies.map((l) => {
-            const creationDate = new Date(l.creationTime * 1000);
+            const creationDate = new Date(l.startTime * 1000);
             const spanContainer = document.createElement('span');
             const update = () => {
                 const sDifference = (new Date().getTime() - creationDate.getTime()) / 1000;
@@ -112,11 +126,12 @@ const lobbiesTable = (lobbies) => {
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const lobbies = yield getIncompleteLobbies();
     const lobbyContainer = document.getElementById('lobby-container');
+    const twitters = yield getAllTwitters();
     if (lobbyContainer === null) {
         throw new Error("Couldn't find lobbyContainer");
     }
     lobbyContainer.innerText = '';
-    lobbyContainer.append(lobbiesTable(lobbies));
+    lobbyContainer.append(lobbiesTable(lobbies, twitters));
 });
 main();
 

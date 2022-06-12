@@ -1,3 +1,11 @@
 body {
     font-family: monospace;
 }
+
+tr > th:first-child {
+    text-align: left;
+}
+
+thead th {
+    padding-bottom: 10px;
+}

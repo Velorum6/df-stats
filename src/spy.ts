@@ -61,7 +61,7 @@ const getGraphQLData = async <T extends Object>(
 interface Arena {
     id: string;
     firstMover: { id: string };
-    creationTime: number;
+    startTime: number;
 }
 
 const getIncompleteLobbies = async (): Promise<Arena[]> => {
@@ -72,7 +72,7 @@ const getIncompleteLobbies = async (): Promise<Arena[]> => {
           id
         },
         id
-        creationTime
+        startTime
       }
     }`;
 
@@ -94,13 +94,30 @@ const getIncompleteLobbies = async (): Promise<Arena[]> => {
     return arenas;
 };
 
-const lobbiesTable = (lobbies: Arena[]) => {
-    const sortedLobbies = lobbies.sort((a, b) => a.creationTime - b.creationTime).reverse();
+const getAllTwitters = async (): Promise<{ [key: string]: string }> => {
+    const res = await fetch('https://api.zkga.me/twitter/all-twitters');
+
+    return res.json();
+};
+
+const lobbiesTable = (lobbies: Arena[], twitters: { [key: string]: string }) => {
+    const sortedLobbies = lobbies.sort((a, b) => a.startTime - b.startTime).reverse();
 
     const table = createTable(
         ['player', 'lobby', 'creationTime'],
         [
-            sortedLobbies.map((l) => l.firstMover.id.split('-')[1]),
+            sortedLobbies.map((l) => {
+                const address = l.firstMover.id.split('-')[1];
+                let formatted = '';
+
+                if (address in twitters) {
+                    formatted = `${address} (@${twitters[address]})`;
+                } else {
+                    formatted = `${address}`;
+                }
+
+                return formatted;
+            }),
             sortedLobbies.map((l) => {
                 const link = document.createElement('a');
                 link.innerText = l.id;
@@ -109,7 +126,7 @@ const lobbiesTable = (lobbies: Arena[]) => {
                 return link;
             }),
             sortedLobbies.map((l) => {
-                const creationDate = new Date(l.creationTime * 1000);
+                const creationDate = new Date(l.startTime * 1000);
 
                 const spanContainer = document.createElement('span');
 
@@ -148,13 +165,14 @@ const lobbiesTable = (lobbies: Arena[]) => {
 const main = async () => {
     const lobbies = await getIncompleteLobbies();
     const lobbyContainer = document.getElementById('lobby-container');
+    const twitters = await getAllTwitters();
 
     if (lobbyContainer === null) {
         throw new Error("Couldn't find lobbyContainer");
     }
 
     lobbyContainer.innerText = '';
-    lobbyContainer.append(lobbiesTable(lobbies));
+    lobbyContainer.append(lobbiesTable(lobbies, twitters));
 };
 
 main();
