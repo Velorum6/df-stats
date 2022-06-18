@@ -53,7 +53,7 @@ const getGraphQLData = (query, graphApiUrl) => __awaiter(void 0, void 0, void 0,
 const getIncompleteLobbies = () => __awaiter(void 0, void 0, void 0, function* () {
     const query = `
     query {
-        arenas(first: 1000, where: {configHash: "0x38329f176da42d2c89b7e424175e8b0ab3c9008cb0d98f947857884d76c6d9d2", gameOver: false, firstMover_not: null}) {
+        arenas(first: 1000, where: {configHash: "0x58975a691f8765ef71b7ffd9f6d64fa3d22aa1bb046265984a07fb30f7ddad33", gameOver: false, firstMover_not: null}) {
         firstMover {
           id
         },
@@ -61,7 +61,7 @@ const getIncompleteLobbies = () => __awaiter(void 0, void 0, void 0, function* (
         startTime
       }
     }`;
-    const response = yield getGraphQLData(query, 'https://graph-optimism.gnosischain.com/subgraphs/name/dfdao/arena-v1');
+    const response = yield getGraphQLData(query, 'https://5a04-2601-601-d00-5e30-ed4a-347f-6eae-7dde.ngrok.io/subgraphs/name/df');
     if ('errors' in response) {
         throw new Error(`error when fetching data, ${JSON.stringify(response)}`);
     }
