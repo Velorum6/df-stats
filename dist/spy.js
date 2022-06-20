@@ -61,7 +61,7 @@ const getIncompleteLobbies = () => __awaiter(void 0, void 0, void 0, function* (
         startTime
       }
     }`;
-    const response = yield getGraphQLData(query, 'https://bc0d-137-184-52-141.ngrok.io/subgraphs/name/df');
+    const response = yield getGraphQLData(query, 'https://graph-optimism.gnosischain.com/subgraphs/name/dfdao/arena-v1');
     if ('errors' in response) {
         throw new Error(`error when fetching data, ${JSON.stringify(response)}`);
     }

@@ -78,7 +78,7 @@ const getIncompleteLobbies = async (): Promise<Arena[]> => {
 
     const response = await getGraphQLData<{ arenas: Arena[] }>(
         query,
-        'https://bc0d-137-184-52-141.ngrok.io/subgraphs/name/df'
+        'https://graph-optimism.gnosischain.com/subgraphs/name/dfdao/arena-v1'
     );
 
     if ('errors' in response) {
